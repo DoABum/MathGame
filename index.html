@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>이차함수 평행이동 게임</title>
+<title>게임으로 수학배우기 with 홍구샘</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -11,588 +11,237 @@ body {
   background: #0f1117;
   color: #e8eaf0;
   min-height: 100vh;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 1.5rem 1rem;
+  padding: 2rem 1rem 4rem;
 }
-.container { width: 100%; max-width: 620px; }
-.header { text-align: center; margin-bottom: 1.1rem; }
-.header h1 { font-size: 1.4rem; font-weight: 700; }
-.header p { color: #9199b0; font-size: 0.85rem; margin-top: 3px; }
 
-/* 상태바 */
-.status-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 0.75rem; }
-.badge { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #9199b0; text-align: center; }
-.badge b { color: #e8eaf0; font-size: 14px; display: block; margin-top: 1px; }
-.badge.combo b { color: #f0c060; }
-.badge.combo { border-color: rgba(240,192,96,0.3); }
+/* 헤더 */
+.hero {
+  text-align: center;
+  padding: 3rem 1rem 2.5rem;
+  max-width: 700px;
+  margin: 0 auto 3rem;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(91,141,238,0.15);
+  border: 1px solid rgba(91,141,238,0.4);
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 12px;
+  color: #5b8dee;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+.hero h1 {
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #e8eaf0 0%, #9199b0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, #5b8dee 0%, #7ec8a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p {
+  color: #9199b0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
 
-/* 타이머 */
-.timer-wrap { margin-bottom: 0.9rem; }
-.timer-bar-bg { height: 8px; background: #22263a; border-radius: 4px; overflow: hidden; }
-.timer-bar-fill { height: 100%; border-radius: 4px; transition: width 0.1s linear, background 0.3s; }
-.timer-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.timer-text { font-size: 13px; font-family: monospace; }
-.timer-text.urgent { color: #e96363; }
+/* 구분선 */
+.divider {
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+.divider-label { font-size: 11px; color: #5b6280; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
 
-/* 미션 카드 */
-.mission-card { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; }
-.mission-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #5b8dee; margin-bottom: 5px; }
-.mission-text { font-size: 0.92rem; color: #9199b0; }
-.mission-target { font-size: 1.25rem; color: #f0c060; font-weight: 700; margin-top: 4px; font-family: monospace; letter-spacing: 0.5px; }
+/* 게임 그리드 */
+.grid {
+  max-width: 700px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
 
-/* 힌트 */
-.hint-wrap { margin-top: 8px; }
-.hint-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 4px 14px; font-size: 12px; font-family: inherit; color: #9199b0; cursor: pointer; transition: background 0.15s; }
-.hint-btn:hover { background: #22263a; }
-.hint-text { display: none; font-size: 12.5px; color: #aab0c4; margin-top: 6px; line-height: 1.5; padding: 6px 10px; background: #22263a; border-radius: 8px; }
-.hint-text.show { display: block; }
+/* 게임 카드 */
+.card {
+  background: #1a1d27;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(91,141,238,0.06) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(91,141,238,0.4);
+  box-shadow: 0 8px 32px rgba(91,141,238,0.12);
+}
+.card:hover::before { opacity: 1; }
 
-/* 캔버스 */
-.canvas-wrap { position: relative; margin-bottom: 0.75rem; border-radius: 12px; overflow: hidden; touch-action: none; cursor: grab; user-select: none; }
-.canvas-wrap:active { cursor: grabbing; }
-canvas { display: block; width: 100%; }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.card-icon { font-size: 2rem; line-height: 1; }
+.card-tag {
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  background: rgba(91,141,238,0.15);
+  color: #5b8dee;
+  border: 1px solid rgba(91,141,238,0.3);
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+.card-tag.grade3 {
+  background: rgba(126,200,160,0.12);
+  color: #7ec8a0;
+  border-color: rgba(126,200,160,0.3);
+}
 
-/* 정보 행 */
-.info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-.coord-display { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 5px 14px; font-size: 13px; font-family: monospace; color: #9199b0; }
-.coord-display b { color: #5b8dee; }
+.card h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #e8eaf0;
+}
+.card p {
+  font-size: 0.82rem;
+  color: #9199b0;
+  line-height: 1.6;
+  flex: 1;
+}
 
-/* 피드백 */
-.feedback { min-height: 34px; font-size: 13.5px; line-height: 1.6; margin-bottom: 0.75rem; color: #9199b0; }
-.feedback.ok { color: #7ec8a0; }
-.feedback.ng { color: #f09090; }
-.feedback.timeout { color: #e96363; }
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.card-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.meta-chip {
+  font-size: 11px;
+  color: #5b6280;
+  background: rgba(255,255,255,0.04);
+  border-radius: 5px;
+  padding: 2px 8px;
+}
+.card-arrow {
+  width: 28px; height: 28px;
+  background: rgba(91,141,238,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  color: #5b8dee;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.card:hover .card-arrow { background: rgba(91,141,238,0.3); }
 
-/* 점수 팝업 */
-.score-popup { position: fixed; pointer-events: none; font-size: 22px; font-weight: 700; color: #7ec8a0; opacity: 0; transition: opacity 0.2s; z-index: 999; font-family: monospace; }
+/* 준비중 카드 */
+.card.soon {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+.card-tag.soon-tag {
+  background: rgba(255,255,255,0.05);
+  color: #5b6280;
+  border-color: rgba(255,255,255,0.1);
+}
 
-/* 버튼 */
-.btn-row { display: flex; gap: 9px; flex-wrap: wrap; }
-.btn { background: transparent; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 9px 20px; font-size: 14px; font-family: inherit; color: #e8eaf0; cursor: pointer; transition: background 0.15s; }
-.btn:hover { background: #22263a; }
-.btn-primary { background: #5b8dee; border-color: #5b8dee; color: #fff; font-weight: 500; }
-.btn-primary:hover { background: #4a7cde; }
-
-/* 결과 */
-.result-wrap { text-align: center; padding: 2.5rem 1rem; }
-.result-emoji { font-size: 52px; margin-bottom: 1rem; }
-.result-score { font-size: 3rem; font-weight: 700; margin-bottom: 0.25rem; }
-.result-score span { font-size: 1.2rem; color: #9199b0; font-weight: 400; }
-.result-msg { color: #9199b0; font-size: 14px; line-height: 1.7; margin-bottom: 1.5rem; }
-.result-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 2rem; }
-.stat-card { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; text-align: center; font-size: 12px; color: #9199b0; }
-.stat-card b { display: block; font-size: 1.3rem; color: #e8eaf0; margin-bottom: 2px; }
-.result-btns { display: flex; gap: 10px; justify-content: center; }
+/* 푸터 */
+.footer {
+  text-align: center;
+  margin-top: 4rem;
+  color: #3d4260;
+  font-size: 12px;
+  line-height: 1.8;
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>📐 이차함수 평행이동</h1>
-    <p>표준형 10초 · 일반형 20초 안에 그래프를 이동하세요!</p>
-  </div>
-  <div id="game"></div>
+
+<div class="hero">
+  <div class="hero-badge">🎮 Math Game</div>
+  <h1>게임으로 수학배우기<br><span>with 홍구샘</span></h1>
+  <p>게임처럼 즐기면서 수학 개념을 익혀요.<br>드래그하고, 계산하고, 점수를 올려보세요!</p>
 </div>
-<div id="score-popup" class="score-popup"></div>
 
-<script>
-// 표준형 풀 a=1 (36개 → 랜덤 7개 선택)
-const POOL_STD = [
-  { a:1, tx: 3, ty: 0, base:'y = x²', target:'y = (x − 3)²',       hint:'x축 방향 이동만 있어요. 식에서 x 뒤의 숫자를 살펴보세요.' },
-  { a:1, tx:-2, ty: 0, base:'y = x²', target:'y = (x + 2)²',        hint:'왼쪽으로 이동하면 식에서 부호가 어떻게 될까요?' },
-  { a:1, tx: 0, ty: 4, base:'y = x²', target:'y = x² + 4',          hint:'x는 그대로인데 y값만 달라졌어요. 어느 방향일까요?' },
-  { a:1, tx: 0, ty:-3, base:'y = x²', target:'y = x² − 3',          hint:'상수항의 부호를 보면 이동 방향을 알 수 있어요.' },
-  { a:1, tx: 2, ty: 3, base:'y = x²', target:'y = (x − 2)² + 3',   hint:'두 방향으로 이동해요. 각각 얼마인지 식에서 읽어보세요.' },
-  { a:1, tx:-3, ty: 2, base:'y = x²', target:'y = (x + 3)² + 2',   hint:'x 부분의 부호와 상수항을 구분해서 생각해보세요.' },
-  { a:1, tx: 3, ty:-4, base:'y = x²', target:'y = (x − 3)² − 4',   hint:'한 방향은 양수, 다른 방향은 음수 이동이에요.' },
-  { a:1, tx:-1, ty: 3, base:'y = x²', target:'y = (x + 1)² + 3',   hint:'이동량이 크지 않아요. 식을 차분히 읽어보세요.' },
-  { a:1, tx: 4, ty: 1, base:'y = x²', target:'y = (x − 4)² + 1',   hint:'x 방향 이동이 상대적으로 커요.' },
-  { a:1, tx:-4, ty:-2, base:'y = x²', target:'y = (x + 4)² − 2',   hint:'두 방향 모두 원점에서 멀어지는 이동이에요.' },
-  { a:1, tx: 1, ty:-5, base:'y = x²', target:'y = (x − 1)² − 5',   hint:'y 방향 이동량이 상대적으로 커요.' },
-  { a:1, tx:-2, ty:-4, base:'y = x²', target:'y = (x + 2)² − 4',   hint:'두 방향 모두 음의 방향으로 이동했나요, 아닌가요?' },
-  { a:1, tx: 0, ty: 5, base:'y = x²', target:'y = x² + 5',          hint:'x 부분이 변하지 않았다면 어느 방향만 이동한 걸까요?' },
-  { a:1, tx: 5, ty: 0, base:'y = x²', target:'y = (x − 5)²',        hint:'y값의 변화 없이 좌우만 이동했어요.' },
-  { a:1, tx:-5, ty: 0, base:'y = x²', target:'y = (x + 5)²',        hint:'식에서 +5가 x 이동에서 어떤 의미인지 생각해보세요.' },
-  { a:1, tx: 2, ty:-5, base:'y = x²', target:'y = (x − 2)² − 5',   hint:'꼭짓점이 몇 사분면에 있을지 먼저 생각해보세요.' },
-  { a:1, tx:-3, ty:-3, base:'y = x²', target:'y = (x + 3)² − 3',   hint:'x와 y 이동량의 절댓값이 같네요.' },
-  { a:1, tx: 4, ty: 4, base:'y = x²', target:'y = (x − 4)² + 4',   hint:'이동량이 대칭적이에요. 어느 방향인지 확인해보세요.' },
-  { a:1, tx:-1, ty:-1, base:'y = x²', target:'y = (x + 1)² − 1',   hint:'작은 이동이지만 두 방향 모두 확인해야 해요.' },
-  { a:1, tx: 3, ty: 5, base:'y = x²', target:'y = (x − 3)² + 5',   hint:'꼭짓점이 1사분면 위쪽에 있어요.' },
-  { a:1, tx:-4, ty: 3, base:'y = x²', target:'y = (x + 4)² + 3',   hint:'꼭짓점이 2사분면에 있어요.' },
-  { a:1, tx: 5, ty:-3, base:'y = x²', target:'y = (x − 5)² − 3',   hint:'꼭짓점이 4사분면에 있어요.' },
-  { a:1, tx:-5, ty:-1, base:'y = x²', target:'y = (x + 5)² − 1',   hint:'x 이동이 크고 y 이동은 작아요.' },
-  { a:1, tx: 1, ty: 4, base:'y = x²', target:'y = (x − 1)² + 4',   hint:'x 이동은 작고 y 이동이 상대적으로 커요.' },
-  { a:1, tx:-2, ty: 5, base:'y = x²', target:'y = (x + 2)² + 5',   hint:'두 방향 모두 양수인가요, 음수인가요?' },
-  { a:1, tx: 4, ty:-2, base:'y = x²', target:'y = (x − 4)² − 2',   hint:'꼭짓점의 사분면을 먼저 파악해보세요.' },
-  { a:1, tx:-3, ty: 4, base:'y = x²', target:'y = (x + 3)² + 4',   hint:'꼭짓점이 2사분면 위쪽에 있어요.' },
-  { a:1, tx: 0, ty:-5, base:'y = x²', target:'y = x² − 5',          hint:'좌우 이동은 없고 한 방향으로만 이동했어요.' },
-  { a:1, tx: 5, ty: 2, base:'y = x²', target:'y = (x − 5)² + 2',   hint:'식에서 두 이동량을 각각 읽어보세요.' },
-  { a:1, tx:-1, ty: 5, base:'y = x²', target:'y = (x + 1)² + 5',   hint:'x 이동은 작은데 y 이동은 크네요.' },
-  { a:1, tx: 2, ty: 0, base:'y = x²', target:'y = (x − 2)²',        hint:'상수항이 없다면 y 방향 이동은 어떻게 되는 걸까요?' },
-  { a:1, tx: 0, ty: 3, base:'y = x²', target:'y = x² + 3',          hint:'x 관련 부분이 바뀌지 않았어요.' },
-  { a:1, tx:-4, ty: 1, base:'y = x²', target:'y = (x + 4)² + 1',   hint:'꼭짓점이 2사분면에 있어요.' },
-  { a:1, tx: 3, ty:-2, base:'y = x²', target:'y = (x − 3)² − 2',   hint:'꼭짓점이 4사분면에 있어요.' },
-  { a:1, tx:-2, ty:-1, base:'y = x²', target:'y = (x + 2)² − 1',   hint:'두 방향의 부호가 서로 다른지 같은지 확인해보세요.' },
-  { a:1, tx: 1, ty:-3, base:'y = x²', target:'y = (x − 1)² − 3',   hint:'꼭짓점이 4사분면에 있어요.' },
-];
+<div class="divider">
+  <div class="divider-line"></div>
+  <div class="divider-label">게임 목록</div>
+  <div class="divider-line"></div>
+</div>
 
-// 표준형 a≠1 풀 (15개 → 랜덤 3개 선택)
-const POOL_STD_A = [
-  { a:2,   tx: 2, ty:-1, base:'y = 2x²',   target:'y = 2(x − 2)² − 1',   hint:'a값이 1이 아닐 때도 이동 방법은 같아요. 폭이 어떻게 다른가요?' },
-  { a:0.5, tx:-2, ty: 3, base:'y = 0.5x²', target:'y = 0.5(x + 2)² + 3', hint:'a < 1이면 포물선이 어떻게 달라 보이나요?' },
-  { a:2,   tx:-3, ty:-2, base:'y = 2x²',   target:'y = 2(x + 3)² − 2',   hint:'포물선의 폭은 a값이 결정해요. 이동 방향은 어떻게 읽을까요?' },
-  { a:2,   tx: 1, ty: 2, base:'y = 2x²',   target:'y = 2(x − 1)² + 2',   hint:'좁은 포물선이지만 이동 규칙은 동일해요.' },
-  { a:0.5, tx: 3, ty:-1, base:'y = 0.5x²', target:'y = 0.5(x − 3)² − 1', hint:'넓은 포물선을 이동할 때도 꼭짓점 위치를 기준으로 생각하세요.' },
-  { a:2,   tx:-1, ty: 4, base:'y = 2x²',   target:'y = 2(x + 1)² + 4',   hint:'a=2인 포물선, 꼭짓점이 2사분면에 있어요.' },
-  { a:0.5, tx:-3, ty: 2, base:'y = 0.5x²', target:'y = 0.5(x + 3)² + 2', hint:'a=0.5인 포물선, 꼭짓점 위치를 식에서 읽어보세요.' },
-  { a:2,   tx: 4, ty:-3, base:'y = 2x²',   target:'y = 2(x − 4)² − 3',   hint:'이동량이 큰 편이에요. 꼭짓점이 어느 사분면인지 확인하세요.' },
-  { a:0.5, tx: 2, ty: 4, base:'y = 0.5x²', target:'y = 0.5(x − 2)² + 4', hint:'a=0.5, 꼭짓점이 1사분면 위쪽이에요.' },
-  { a:2,   tx:-2, ty:-3, base:'y = 2x²',   target:'y = 2(x + 2)² − 3',   hint:'좁은 포물선, 꼭짓점이 3사분면에 있어요.' },
-  { a:0.5, tx: 1, ty:-2, base:'y = 0.5x²', target:'y = 0.5(x − 1)² − 2', hint:'a=0.5인 넓은 포물선. 꼭짓점이 4사분면에 있어요.' },
-  { a:2,   tx: 3, ty: 1, base:'y = 2x²',   target:'y = 2(x − 3)² + 1',   hint:'꼭짓점이 1사분면에 있어요.' },
-  { a:0.5, tx:-4, ty:-1, base:'y = 0.5x²', target:'y = 0.5(x + 4)² − 1', hint:'x 이동이 크네요. 부호도 잘 확인해보세요.' },
-  { a:2,   tx: 0, ty: 3, base:'y = 2x²',   target:'y = 2x² + 3',          hint:'x 방향 이동은 없어요. y 방향만 이동했어요.' },
-  { a:0.5, tx: 4, ty: 2, base:'y = 0.5x²', target:'y = 0.5(x − 4)² + 2', hint:'넓은 포물선, 꼭짓점이 1사분면 오른쪽에 있어요.' },
-];
+<div class="grid">
 
-// 일반형 a=1 풀 (30개 → 랜덤 5개 선택)
-const POOL_GEN = [
-  { a:1, tx:-1, ty: 2, base:'y = x² + 2x + 3',    target:'꼭짓점 (−1, 2)',   hint:'b의 절반을 생각해보세요. 꼭짓점 x좌표의 부호는 어떻게 될까요?', general:true },
-  { a:1, tx: 2, ty:-3, base:'y = x² − 4x + 1',    target:'꼭짓점 (2, −3)',   hint:'b가 음수일 때 꼭짓점 x좌표의 부호는 어떻게 될까요?', general:true },
-  { a:1, tx:-3, ty:-4, base:'y = x² + 6x + 5',    target:'꼭짓점 (−3, −4)',  hint:'b=6일 때 꼭짓점 x좌표를 먼저 구하고, 그 값을 식에 대입해보세요.', general:true },
-  { a:1, tx: 1, ty:-4, base:'y = x² − 2x − 3',    target:'꼭짓점 (1, −4)',   hint:'꼭짓점 x좌표를 구한 후 y좌표를 계산할 때 c의 부호를 주의하세요.', general:true },
-  { a:1, tx:-2, ty: 3, base:'y = x² + 4x + 7',    target:'꼭짓점 (−2, 3)',   hint:'꼭짓점 y좌표가 양수인지 음수인지 먼저 예상해볼 수 있을까요?', general:true },
-  { a:1, tx: 3, ty:-4, base:'y = x² − 6x + 5',    target:'꼭짓점 (3, −4)',   hint:'b의 절댓값이 클수록 꼭짓점이 원점에서 멀어져요.', general:true },
-  { a:1, tx:-1, ty:-5, base:'y = x² + 2x − 4',    target:'꼭짓점 (−1, −5)',  hint:'c가 음수이면 꼭짓점 y좌표에 어떤 영향을 줄까요?', general:true },
-  { a:1, tx: 2, ty: 1, base:'y = x² − 4x + 5',    target:'꼭짓점 (2, 1)',    hint:'꼭짓점 y좌표가 양수이려면 c가 얼마나 커야 할까요?', general:true },
-  { a:1, tx:-4, ty:-1, base:'y = x² + 8x + 15',   target:'꼭짓점 (−4, −1)',  hint:'b가 클수록 x 이동이 커요. 방향도 같이 확인해보세요.', general:true },
-  { a:1, tx: 1, ty: 2, base:'y = x² − 2x + 3',    target:'꼭짓점 (1, 2)',    hint:'꼭짓점이 1사분면에 있어요. x와 y 모두 양수예요.', general:true },
-  { a:1, tx: 3, ty: 2, base:'y = x² − 6x + 11',   target:'꼭짓점 (3, 2)',    hint:'꼭짓점이 1사분면에 있어요. 이동량이 크지 않아요.', general:true },
-  { a:1, tx:-2, ty:-5, base:'y = x² + 4x − 1',    target:'꼭짓점 (−2, −5)',  hint:'꼭짓점이 3사분면에 있어요. c의 영향을 확인해보세요.', general:true },
-  { a:1, tx: 4, ty: 1, base:'y = x² − 8x + 17',   target:'꼭짓점 (4, 1)',    hint:'b의 크기가 크면 x 이동도 커요.', general:true },
-  { a:1, tx:-3, ty: 1, base:'y = x² + 6x + 10',   target:'꼭짓점 (−3, 1)',   hint:'꼭짓점 y좌표가 양수인 이유를 c에서 찾을 수 있어요.', general:true },
-  { a:1, tx: 0, ty: 2, base:'y = x² + 2',          target:'꼭짓점 (0, 2)',    hint:'b=0이면 꼭짓점 x좌표가 어떻게 될까요?', general:true },
-  { a:1, tx:-1, ty: 4, base:'y = x² + 2x + 5',    target:'꼭짓점 (−1, 4)',   hint:'꼭짓점이 2사분면에 있어요.', general:true },
-  { a:1, tx: 2, ty:-5, base:'y = x² − 4x − 1',    target:'꼭짓점 (2, −5)',   hint:'꼭짓점이 4사분면에 있어요. c의 영향을 생각해보세요.', general:true },
-  { a:1, tx:-4, ty: 3, base:'y = x² + 8x + 19',   target:'꼭짓점 (−4, 3)',   hint:'b가 크고 양수면 꼭짓점이 어느 방향으로 이동할까요?', general:true },
-  { a:1, tx: 1, ty:-1, base:'y = x² − 2x',         target:'꼭짓점 (1, −1)',   hint:'c=0인 경우도 꼭짓점 계산 방법은 같아요.', general:true },
-  { a:1, tx:-3, ty:-2, base:'y = x² + 6x + 7',    target:'꼭짓점 (−3, −2)',  hint:'꼭짓점이 3사분면에 있어요.', general:true },
-  { a:1, tx: 3, ty:-1, base:'y = x² − 6x + 8',    target:'꼭짓점 (3, −1)',   hint:'꼭짓점이 4사분면에 살짝 걸쳐 있어요.', general:true },
-  { a:1, tx:-2, ty: 1, base:'y = x² + 4x + 5',    target:'꼭짓점 (−2, 1)',   hint:'꼭짓점이 2사분면에 있어요.', general:true },
-  { a:1, tx: 4, ty:-3, base:'y = x² − 8x + 13',   target:'꼭짓점 (4, −3)',   hint:'x 이동이 크고 꼭짓점이 4사분면에 있어요.', general:true },
-  { a:1, tx:-1, ty:-3, base:'y = x² + 2x − 2',    target:'꼭짓점 (−1, −3)',  hint:'꼭짓점이 3사분면에 있어요.', general:true },
-  { a:1, tx: 2, ty: 4, base:'y = x² − 4x + 8',    target:'꼭짓점 (2, 4)',    hint:'꼭짓점 y좌표가 꽤 크네요. c값을 잘 살펴보세요.', general:true },
-  { a:1, tx:-3, ty: 5, base:'y = x² + 6x + 14',   target:'꼭짓점 (−3, 5)',   hint:'꼭짓점이 2사분면 위쪽에 있어요.', general:true },
-  { a:1, tx: 1, ty: 5, base:'y = x² − 2x + 6',    target:'꼭짓점 (1, 5)',    hint:'꼭짓점 y좌표가 x좌표보다 훨씬 크네요.', general:true },
-  { a:1, tx:-2, ty:-3, base:'y = x² + 4x + 1',    target:'꼭짓점 (−2, −3)',  hint:'꼭짓점이 3사분면에 있어요.', general:true },
-  { a:1, tx: 3, ty: 4, base:'y = x² − 6x + 13',   target:'꼭짓점 (3, 4)',    hint:'꼭짓점이 1사분면 위쪽에 있어요.', general:true },
-  { a:1, tx:-4, ty:-2, base:'y = x² + 8x + 14',   target:'꼭짓점 (−4, −2)',  hint:'b가 크고 꼭짓점이 3사분면에 있어요.', general:true },
-];
-
-// 일반형 a≠1 풀 (9개 → 랜덤 2개 선택)
-const POOL_GEN_A = [
-  { a:2,   tx: 2, ty:-2, base:'y = 2x² − 8x + 6',   target:'꼭짓점 (2, −2)',   hint:'a≠1일 때 꼭짓점 x좌표 공식은 −b÷(2a)예요. a값을 먼저 확인하세요.', general:true },
-  { a:0.5, tx:-2, ty:-1, base:'y = 0.5x² + 2x + 1', target:'꼭짓점 (−2, −1)',  hint:'a=0.5일 때 2a는 얼마인가요? 그 값으로 −b를 나눠보세요.', general:true },
-  { a:2,   tx:-1, ty:-4, base:'y = 2x² + 4x − 2',   target:'꼭짓점 (−1, −4)',  hint:'a=2이면 꼭짓점 x좌표 계산 시 분모가 달라져요.', general:true },
-  { a:2,   tx: 1, ty: 3, base:'y = 2x² − 4x + 5',   target:'꼭짓점 (1, 3)',    hint:'a=2, 꼭짓점 x좌표를 먼저 구하고 식에 대입해보세요.', general:true },
-  { a:0.5, tx: 4, ty:-1, base:'y = 0.5x² − 4x + 7', target:'꼭짓점 (4, −1)',   hint:'a=0.5이면 2a=1이에요. 계산이 단순해지지 않나요?', general:true },
-  { a:2,   tx:-3, ty: 1, base:'y = 2x² + 12x + 19', target:'꼭짓점 (−3, 1)',   hint:'b가 크면 a로 나눌 때 신중하게 계산해야 해요.', general:true },
-  { a:0.5, tx: 2, ty: 2, base:'y = 0.5x² − 2x + 4', target:'꼭짓점 (2, 2)',    hint:'a=0.5인 넓은 포물선. 꼭짓점이 1사분면에 있어요.', general:true },
-  { a:2,   tx: 3, ty:-5, base:'y = 2x² − 12x + 13', target:'꼭짓점 (3, −5)',   hint:'a=2, x 이동이 크고 꼭짓점이 4사분면에 있어요.', general:true },
-  { a:0.5, tx:-3, ty: 3, base:'y = 0.5x² + 3x + 7.5', target:'꼭짓점 (−3, 3)', hint:'a=0.5, 꼭짓점이 2사분면에 있어요.', general:true },
-];
-
-function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
-
-function buildStages() {
-  const std   = shuffle(POOL_STD).slice(0, 7).map(s => ({...s, general:false}));
-  const stdA  = shuffle(POOL_STD_A).slice(0, 3).map(s => ({...s, general:false}));
-  const gen   = shuffle(POOL_GEN).slice(0, 5);
-  const genA  = shuffle(POOL_GEN_A).slice(0, 2);
-  return [...std, ...stdA, ...gen, ...genA];
-}
-
-let STAGES = buildStages();
-let TOTAL = STAGES.length;
-const TIME_LIMIT = 15; // 기본값 (사용 안 함)
-function getTimeLimit() { return STAGES[current].general ? 20 : 10; }
-const BASE_SCORE = 100;
-
-let current = 0, totalScore = 0, combo = 0, maxCombo = 0;
-let correctCount = 0;
-let dragH = 0, dragV = 0;
-let isDragging = false, dragStartX = 0, dragStartY = 0, dragBaseH = 0, dragBaseV = 0;
-let submitted = false;
-let timeLeft = TIME_LIMIT;
-let timerInterval = null;
-
-const GW = 560, GH = 380;
-const X_MIN = -8, X_MAX = 8, Y_MIN = -6, Y_MAX = 10;
-
-function toCanvasX(x) { return (x - X_MIN) / (X_MAX - X_MIN) * GW; }
-function toCanvasY(y) { return GH - (y - Y_MIN) / (Y_MAX - Y_MIN) * GH; }
-function toGraphDX(dpx) { return dpx / GW * (X_MAX - X_MIN); }
-function toGraphDY(dpy) { return -dpy / GH * (Y_MAX - Y_MIN); }
-
-function drawCurve(ctx, a, h, v, color, lw, dash) {
-  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
-  ctx.beginPath();
-  let first = true;
-  for (let x = X_MIN; x <= X_MAX; x += 0.04) {
-    const y = a * (x - h) * (x - h) + v;
-    if (y < Y_MIN - 4 || y > Y_MAX + 4) { first = true; continue; }
-    const px = toCanvasX(x), py = toCanvasY(y);
-    first ? (ctx.moveTo(px, py), first = false) : ctx.lineTo(px, py);
-  }
-  ctx.stroke(); ctx.setLineDash([]);
-}
-
-function drawScene(state) {
-  const canvas = document.getElementById('gc');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const st = STAGES[current];
-  ctx.clearRect(0, 0, GW, GH);
-  ctx.fillStyle = '#13151f'; ctx.fillRect(0, 0, GW, GH);
-
-  // 그리드
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
-  for (let x = Math.ceil(X_MIN); x <= X_MAX; x++) { ctx.beginPath(); ctx.moveTo(toCanvasX(x), 0); ctx.lineTo(toCanvasX(x), GH); ctx.stroke(); }
-  for (let y = Math.ceil(Y_MIN); y <= Y_MAX; y++) { ctx.beginPath(); ctx.moveTo(0, toCanvasY(y)); ctx.lineTo(GW, toCanvasY(y)); ctx.stroke(); }
-
-  // 축
-  ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(toCanvasX(0), 0); ctx.lineTo(toCanvasX(0), GH); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, toCanvasY(0)); ctx.lineTo(GW, toCanvasY(0)); ctx.stroke();
-
-  // 축 레이블
-  ctx.fillStyle = '#9199b0'; ctx.font = '11px monospace';
-  ctx.textAlign = 'center';
-  for (let x = X_MIN+1; x <= X_MAX; x++) { if (x !== 0 && x % 2 === 0) ctx.fillText(x, toCanvasX(x), toCanvasY(0)+14); }
-  ctx.textAlign = 'right';
-  for (let y = Y_MIN+1; y <= Y_MAX; y++) { if (y !== 0 && y % 2 === 0) ctx.fillText(y, toCanvasX(0)-5, toCanvasY(y)+4); }
-  ctx.fillText('0', toCanvasX(0)-5, toCanvasY(0)+14);
-
-  // 오답시 정답 곡선 표시
-  if (state === 'wrong') {
-    drawCurve(ctx, st.a, st.tx, st.ty, 'rgba(240,192,96,0.45)', 2, [6,4]);
-    ctx.fillStyle = 'rgba(240,192,96,0.7)';
-    ctx.beginPath(); ctx.arc(toCanvasX(st.tx), toCanvasY(st.ty), 4, 0, Math.PI*2); ctx.fill();
-  }
-
-  // 현재 그래프
-  const color = state === 'correct' ? '#7ec8a0' : state === 'wrong' ? 'rgba(91,141,238,0.5)' : '#5b8dee';
-  drawCurve(ctx, st.a, dragH, dragV, color, 2.8);
-
-  // 꼭짓점 — 정수에 스냅된 경우 강조
-  const isSnapped = state === 'idle' && Number.isInteger(Math.round(dragH*10)/10) && Math.abs(dragH - Math.round(dragH)) < 0.01
-                    && Math.abs(dragV - Math.round(dragV)) < 0.01;
-  const dotColor = state === 'correct' ? '#7ec8a0' : isSnapped ? '#f0c060' : color;
-  const dotR = isSnapped ? 7 : 5;
-  if (isSnapped && state === 'idle') {
-    // 스냅 글로우 링
-    ctx.strokeStyle = 'rgba(240,192,96,0.35)';
-    ctx.lineWidth = 6;
-    ctx.beginPath(); ctx.arc(toCanvasX(dragH), toCanvasY(dragV), 11, 0, Math.PI*2); ctx.stroke();
-  }
-  ctx.fillStyle = dotColor;
-  ctx.beginPath(); ctx.arc(toCanvasX(dragH), toCanvasY(dragV), dotR, 0, Math.PI*2); ctx.fill();
-
-  // 좌표 업데이트
-  const cd = document.getElementById('coord');
-  const rh = Math.round(dragH * 10) / 10;
-  const rv = Math.round(dragV * 10) / 10;
-  if (cd) cd.innerHTML = `꼭짓점: <b>(${rh}, ${rv})</b>`;
-}
-
-function startTimer() {
-  timeLeft = getTimeLimit();
-  updateTimerUI();
-  timerInterval = setInterval(() => {
-    timeLeft -= 0.1;
-    if (timeLeft <= 0) { timeLeft = 0; updateTimerUI(); clearInterval(timerInterval); onTimeout(); }
-    else updateTimerUI();
-  }, 100);
-}
-
-function updateTimerUI() {
-  const fill = document.getElementById('timer-fill');
-  const text = document.getElementById('timer-text');
-  if (!fill || !text) return;
-  const limit = getTimeLimit();
-  const pct = (timeLeft / limit) * 100;
-  fill.style.width = pct + '%';
-  text.textContent = (Math.ceil(timeLeft * 10) / 10).toFixed(1) + '초';
-  if (timeLeft <= limit * 0.2) {
-    fill.style.background = '#e96363';
-    text.className = 'timer-text urgent';
-  } else if (timeLeft <= limit * 0.5) {
-    fill.style.background = '#f0c060';
-    text.className = 'timer-text';
-  } else {
-    fill.style.background = '#5b8dee';
-    text.className = 'timer-text';
-  }
-}
-
-function onTimeout() {
-  if (submitted) return;
-  submitted = true;
-  combo = 0;
-  updateCombo();
-  drawScene('wrong');
-  const st = STAGES[current];
-  const fb = document.getElementById('fb');
-  fb.className = 'feedback timeout';
-  fb.textContent = `⏰ 시간 초과! 목표 꼭짓점은 (${st.tx}, ${st.ty})였어요.`;
-  showNextBtn();
-}
-
-function updateCombo() {
-  const el = document.getElementById('combo-val');
-  if (el) el.textContent = combo + 'x';
-}
-
-function showScorePopup(pts, canvas) {
-  const popup = document.getElementById('score-popup');
-  const rect = canvas.getBoundingClientRect();
-  popup.textContent = '+' + pts;
-  popup.style.left = (rect.left + rect.width / 2 - 30) + 'px';
-  popup.style.top = (rect.top + 60) + 'px';
-  popup.style.opacity = '1';
-  popup.style.fontSize = pts >= 200 ? '28px' : '22px';
-  popup.style.color = pts >= 200 ? '#f0c060' : '#7ec8a0';
-  setTimeout(() => { popup.style.opacity = '0'; }, 900);
-}
-
-function checkAnswer() {
-  if (submitted) return;
-  submitted = true;
-  clearInterval(timerInterval);
-  const st = STAGES[current];
-  const dh = Math.abs(dragH - st.tx);
-  const dv = Math.abs(dragV - st.ty);
-  const ok = dh <= 0.45 && dv <= 0.45;
-  const fb = document.getElementById('fb');
-
-  if (ok) {
-    combo++;
-    correctCount++;
-    if (combo > maxCombo) maxCombo = combo;
-    const timeBonus = Math.round(timeLeft * 10);
-    const comboBonus = combo >= 3 ? combo : 1;
-    const pts = (BASE_SCORE + timeBonus) * comboBonus;
-    totalScore += pts;
-    updateCombo();
-    updateScore();
-    drawScene('correct');
-    fb.className = 'feedback ok';
-    let msg = `✓ 정답! +${pts}점`;
-    if (timeBonus > 0) msg += ` (시간보너스 +${timeBonus})`;
-    if (combo >= 2) msg += ` 🔥 ${combo}콤보!`;
-    fb.textContent = msg;
-    const canvas = document.getElementById('gc');
-    if (canvas) showScorePopup(pts, canvas);
-  } else {
-    combo = 0;
-    updateCombo();
-    drawScene('wrong');
-    fb.className = 'feedback ng';
-    fb.textContent = `✗ 아쉬워요. 목표 꼭짓점은 (${st.tx}, ${st.ty})예요.`;
-  }
-  showNextBtn();
-}
-
-function showNextBtn() {
-  const btnRow = document.getElementById('btn-row');
-  if (!btnRow) return;
-  btnRow.innerHTML = '';
-  const nb = document.createElement('button');
-  const isLast = current + 1 >= TOTAL;
-  const isTransition = current + 1 === 10; // 10번 끝나고 11번(일반형) 시작 전
-  nb.className = isLast ? 'btn btn-primary' : 'btn';
-  nb.textContent = isLast ? '결과 보기 →' : isTransition ? '2단계 시작 →' : '다음 단계 →';
-  nb.onclick = () => {
-    current++;
-    if (current >= TOTAL) showResult();
-    else if (current === 10) showGeneralIntro();
-    else render();
-  };
-  btnRow.appendChild(nb);
-}
-
-function showGeneralIntro() {
-  clearInterval(timerInterval);
-  document.getElementById('game').innerHTML = `
-    <div style="background:#1a1d27; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:2rem 1.5rem; margin-bottom:1rem;">
-      <div style="text-align:center; margin-bottom:1.5rem;">
-        <div style="font-size:40px; margin-bottom:0.75rem;">📈</div>
-        <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#e96363; margin-bottom:8px;">STAGE 2</div>
-        <div style="font-size:1.3rem; font-weight:700; margin-bottom:6px;">일반형 도전!</div>
-        <div style="font-size:0.88rem; color:#9199b0;">이제부터는 일반형 이차함수가 주어져요</div>
-      </div>
-      <div style="background:#13151f; border-radius:12px; padding:1.25rem; margin-bottom:1.25rem;">
-        <div style="font-size:13px; color:#9199b0; margin-bottom:10px;">일반형이란?</div>
-        <div style="font-family:monospace; font-size:1.05rem; color:#f0c060; font-weight:700; margin-bottom:10px;">y = ax² + bx + c</div>
-        <div style="font-size:13px; color:#aab0c4; line-height:1.7;">
-          일반형에서 꼭짓점을 직접 계산해서 그래프를 이동해요.<br>
-          꼭짓점 x좌표: <span style="font-family:monospace; color:#7ec8a0">p = −b ÷ (2a)</span><br>
-          꼭짓점 y좌표: <span style="font-family:monospace; color:#7ec8a0">x=p를 식에 대입</span>
-        </div>
-      </div>
-      <div style="background:#13151f; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
-        <div style="font-size:13px; color:#9199b0; margin-bottom:8px;">예시</div>
-        <div style="font-family:monospace; font-size:0.95rem; color:#e8eaf0; line-height:2;">
-          y = x² + 4x + 5<br>
-          <span style="color:#9199b0">p = −4 ÷ (2×1) = −2</span><br>
-          <span style="color:#9199b0">q = (−2)² + 4×(−2) + 5 = 1</span><br>
-          <span style="color:#7ec8a0">→ 꼭짓점 (−2, 1)로 이동!</span>
-        </div>
-      </div>
-      <div style="font-size:12px; color:#9199b0; text-align:center; margin-bottom:1.25rem;">
-        콤보는 계속 이어집니다! 현재 <b style="color:#f0c060">${combo}콤보</b> 유지 중
-      </div>
-      <div style="text-align:center;">
-        <button class="btn btn-primary" style="padding:12px 36px; font-size:15px;" onclick="render()">시작하기 →</button>
-      </div>
+  <!-- 이차함수 게임 -->
+  <a class="card" href="./quadratic/">
+    <div class="card-top">
+      <div class="card-icon">📐</div>
+      <div class="card-tag grade3">중3</div>
     </div>
-  `;
-}
-
-function updateScore() {
-  const el = document.getElementById('score-val');
-  if (el) el.textContent = totalScore;
-}
-
-function setupDrag() {
-  const canvas = document.getElementById('gc');
-  if (!canvas) return;
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const sx = GW / rect.width, sy = GH / rect.height;
-    if (e.touches) return { x: (e.touches[0].clientX - rect.left)*sx, y: (e.touches[0].clientY - rect.top)*sy };
-    return { x: (e.clientX - rect.left)*sx, y: (e.clientY - rect.top)*sy };
-  }
-  function onStart(e) {
-    if (submitted) return; e.preventDefault(); isDragging = true;
-    const p = getPos(e); dragStartX = p.x; dragStartY = p.y; dragBaseH = dragH; dragBaseV = dragV;
-  }
-  function onMove(e) {
-    if (!isDragging) return; e.preventDefault();
-    const p = getPos(e);
-    let rawH = Math.max(X_MIN+.5, Math.min(X_MAX-.5, dragBaseH + toGraphDX(p.x - dragStartX)));
-    let rawV = Math.max(Y_MIN+.5, Math.min(Y_MAX-.5, dragBaseV + toGraphDY(p.y - dragStartY)));
-    // 정수 스냅: 0.4 이내면 자석처럼 붙음
-    const snapH = Math.round(rawH);
-    const snapV = Math.round(rawV);
-    dragH = Math.abs(rawH - snapH) < 0.4 ? snapH : rawH;
-    dragV = Math.abs(rawV - snapV) < 0.4 ? snapV : rawV;
-    drawScene('idle');
-  }
-  function onEnd() { isDragging = false; }
-  canvas.addEventListener('mousedown', onStart);
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onEnd);
-  canvas.addEventListener('touchstart', onStart, { passive: false });
-  window.addEventListener('touchmove', onMove, { passive: false });
-  window.addEventListener('touchend', onEnd);
-}
-
-function toggleHint() {
-  const ht = document.getElementById('hint-text');
-  const hb = document.getElementById('hint-btn');
-  if (!ht || !hb) return;
-  ht.classList.toggle('show');
-  hb.textContent = ht.classList.contains('show') ? '힌트 숨기기' : '💡 힌트 보기';
-}
-
-function render() {
-  submitted = false; dragH = 0; dragV = 0;
-  clearInterval(timerInterval);
-  const st = STAGES[current];
-  const pct = Math.round(current / TOTAL * 100);
-  document.getElementById('game').innerHTML = `
-    <div class="status-bar">
-      <div class="badge">단계 <b>${current+1} / ${TOTAL}</b>${st.general ? ' <span style="font-size:10px;color:#e96363;">일반형</span>' : ''}</div>
-      <div class="badge"><span style="font-size:11px">점수</span><b id="score-val">${totalScore}</b></div>
-      <div class="badge combo"><span style="font-size:11px">콤보</span><b id="combo-val">${combo}x</b></div>
-    </div>
-    <div class="timer-wrap">
-      <div class="timer-label">
-        <span style="font-size:12px; color:#9199b0;">제한시간</span>
-        <span class="timer-text" id="timer-text">${STAGES[current].general ? '20.0' : '10.0'}초</span>
+    <h2>이차함수 그래프<br>마스터하기</h2>
+    <p>포물선을 드래그해서 목표 위치에 맞춰보세요! 표준형부터 일반형까지, 평행이동 개념을 게임으로 완전 정복!</p>
+    <div class="card-footer">
+      <div class="card-meta">
+        <span class="meta-chip">⏱ 10~20초</span>
+        <span class="meta-chip">📝 17문제</span>
+        <span class="meta-chip">🔥 콤보</span>
       </div>
-      <div class="timer-bar-bg"><div class="timer-bar-fill" id="timer-fill" style="width:100%; background:#5b8dee;"></div></div>
+      <div class="card-arrow">→</div>
     </div>
-    <div class="progress-wrap" style="height:3px; background:#22263a; border-radius:4px; margin-bottom:0.9rem; overflow:hidden;">
-      <div style="height:100%; width:${pct}%; background:#5b8dee; border-radius:4px; transition:width 0.4s;"></div>
+  </a>
+
+  <!-- 준비중 카드 예시 -->
+  <div class="card soon">
+    <div class="card-top">
+      <div class="card-icon">📊</div>
+      <div class="card-tag soon-tag">준비중</div>
     </div>
-      <div class="mission-card">
-        <div class="mission-label">${st.general ? '🔴 일반형' : '목표 함수'}</div>
-        <div class="mission-text">${st.general
-          ? `<span style="color:#e8eaf0; font-weight:500">${st.base}</span>의 꼭짓점을 구하고 그래프를 이동하세요`
-          : `기본형 <span style="color:#e8eaf0; font-weight:500">${st.base}</span>을 아래 함수가 되도록 이동하세요`
-        }</div>
-        <div class="mission-target">${st.target}</div>
-        <div class="hint-wrap">
-          <button class="hint-btn" id="hint-btn" onclick="toggleHint()">💡 힌트 보기</button>
-          <div class="hint-text" id="hint-text">${st.hint}</div>
-        </div>
+    <h2>다음 게임</h2>
+    <p>새로운 수학 게임이 곧 추가될 예정이에요. 기대해 주세요!</p>
+    <div class="card-footer">
+      <div class="card-meta">
+        <span class="meta-chip">🔒 Coming Soon</span>
       </div>
-    <div class="canvas-wrap"><canvas id="gc" width="${GW}" height="${GH}"></canvas></div>
-    <div class="info-row">
-      <div class="coord-display" id="coord">꼭짓점: <b>(0, 0)</b></div>
-      <span style="font-size:12px; color:#9199b0;">그래프를 드래그하세요</span>
+      <div class="card-arrow">→</div>
     </div>
-    <div class="feedback" id="fb"></div>
-    <div class="btn-row" id="btn-row">
-      <button class="btn btn-primary" onclick="checkAnswer()">정답 확인</button>
-      <button class="btn" onclick="resetPos()">↺ 초기화</button>
-    </div>
-  `;
-  drawScene('idle');
-  setupDrag();
-  startTimer();
-}
+  </div>
 
-function resetPos() { if (submitted) return; dragH = 0; dragV = 0; drawScene('idle'); }
+</div>
 
-function showResult() {
-  clearInterval(timerInterval);
-  const pct = Math.round(correctCount / TOTAL * 100);
-  let emoji, msg;
-  if (pct === 100)    { emoji = '🏆'; msg = '모든 문제를 맞췄어요! 평행이동 완벽 이해!'; }
-  else if (pct >= 80) { emoji = '⭐'; msg = '아주 잘했어요! 조금만 더 연습하면 완벽해요.'; }
-  else if (pct >= 60) { emoji = '📘'; msg = 'x, y 방향 이동 개념을 더 연습해봐요.'; }
-  else                { emoji = '💪'; msg = 'y = a(x−p)²+q에서 p는 x이동, q는 y이동이에요. 다시 도전!'; }
-  document.getElementById('game').innerHTML = `
-    <div class="result-wrap">
-      <div class="result-emoji">${emoji}</div>
-      <div style="font-size:13px; color:#9199b0; margin-bottom:4px;">최종 점수</div>
-      <div class="result-score">${totalScore} <span>점</span></div>
-      <div class="result-msg">${msg}</div>
-      <div class="result-stats">
-        <div class="stat-card"><b>${correctCount} / ${TOTAL}</b>정답 수</div>
-        <div class="stat-card"><b>${maxCombo}x</b>최고 콤보</div>
-        <div class="stat-card"><b>${Math.round(correctCount/TOTAL*100)}%</b>정답률</div>
-      </div>
-      <div class="result-btns">
-        <button class="btn btn-primary" onclick="restartGame()">다시 하기</button>
-      </div>
-    </div>
-  `;
-}
+<div class="footer">
+  <p>게임으로 수학배우기 with 홍구샘</p>
+  <p>즐겁게 배우는 수학 🧮</p>
+</div>
 
-function restartGame() {
-  STAGES = buildStages();
-  TOTAL = STAGES.length;
-  current = 0; totalScore = 0; combo = 0; maxCombo = 0; correctCount = 0;
-  render();
-}
-
-render();
-</script>
 </body>
 </html>
