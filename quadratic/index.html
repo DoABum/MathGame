@@ -101,110 +101,104 @@ canvas { display: block; width: 100%; }
 
 <script>
 // 표준형 풀 a=1 (36개 → 랜덤 7개 선택)
-const POOL_STD = [
-  { a:1, tx: 3, ty: 0, base:'y = x²', target:'y = (x − 3)²',       hint:'x축 방향 이동만 있어요. 식에서 x 뒤의 숫자를 살펴보세요.' },
-  { a:1, tx:-2, ty: 0, base:'y = x²', target:'y = (x + 2)²',        hint:'왼쪽으로 이동하면 식에서 부호가 어떻게 될까요?' },
-  { a:1, tx: 0, ty: 4, base:'y = x²', target:'y = x² + 4',          hint:'x는 그대로인데 y값만 달라졌어요. 어느 방향일까요?' },
-  { a:1, tx: 0, ty:-3, base:'y = x²', target:'y = x² − 3',          hint:'상수항의 부호를 보면 이동 방향을 알 수 있어요.' },
-  { a:1, tx: 2, ty: 3, base:'y = x²', target:'y = (x − 2)² + 3',   hint:'두 방향으로 이동해요. 각각 얼마인지 식에서 읽어보세요.' },
-  { a:1, tx:-3, ty: 2, base:'y = x²', target:'y = (x + 3)² + 2',   hint:'x 부분의 부호와 상수항을 구분해서 생각해보세요.' },
-  { a:1, tx: 3, ty:-4, base:'y = x²', target:'y = (x − 3)² − 4',   hint:'한 방향은 양수, 다른 방향은 음수 이동이에요.' },
-  { a:1, tx:-1, ty: 3, base:'y = x²', target:'y = (x + 1)² + 3',   hint:'이동량이 크지 않아요. 식을 차분히 읽어보세요.' },
-  { a:1, tx: 4, ty: 1, base:'y = x²', target:'y = (x − 4)² + 1',   hint:'x 방향 이동이 상대적으로 커요.' },
-  { a:1, tx:-4, ty:-2, base:'y = x²', target:'y = (x + 4)² − 2',   hint:'두 방향 모두 원점에서 멀어지는 이동이에요.' },
-  { a:1, tx: 1, ty:-5, base:'y = x²', target:'y = (x − 1)² − 5',   hint:'y 방향 이동량이 상대적으로 커요.' },
-  { a:1, tx:-2, ty:-4, base:'y = x²', target:'y = (x + 2)² − 4',   hint:'두 방향 모두 음의 방향으로 이동했나요, 아닌가요?' },
-  { a:1, tx: 0, ty: 5, base:'y = x²', target:'y = x² + 5',          hint:'x 부분이 변하지 않았다면 어느 방향만 이동한 걸까요?' },
-  { a:1, tx: 5, ty: 0, base:'y = x²', target:'y = (x − 5)²',        hint:'y값의 변화 없이 좌우만 이동했어요.' },
-  { a:1, tx:-5, ty: 0, base:'y = x²', target:'y = (x + 5)²',        hint:'식에서 +5가 x 이동에서 어떤 의미인지 생각해보세요.' },
-  { a:1, tx: 2, ty:-5, base:'y = x²', target:'y = (x − 2)² − 5',   hint:'꼭짓점이 몇 사분면에 있을지 먼저 생각해보세요.' },
-  { a:1, tx:-3, ty:-3, base:'y = x²', target:'y = (x + 3)² − 3',   hint:'x와 y 이동량의 절댓값이 같네요.' },
-  { a:1, tx: 4, ty: 4, base:'y = x²', target:'y = (x − 4)² + 4',   hint:'이동량이 대칭적이에요. 어느 방향인지 확인해보세요.' },
-  { a:1, tx:-1, ty:-1, base:'y = x²', target:'y = (x + 1)² − 1',   hint:'작은 이동이지만 두 방향 모두 확인해야 해요.' },
-  { a:1, tx: 3, ty: 5, base:'y = x²', target:'y = (x − 3)² + 5',   hint:'꼭짓점이 1사분면 위쪽에 있어요.' },
-  { a:1, tx:-4, ty: 3, base:'y = x²', target:'y = (x + 4)² + 3',   hint:'꼭짓점이 2사분면에 있어요.' },
-  { a:1, tx: 5, ty:-3, base:'y = x²', target:'y = (x − 5)² − 3',   hint:'꼭짓점이 4사분면에 있어요.' },
-  { a:1, tx:-5, ty:-1, base:'y = x²', target:'y = (x + 5)² − 1',   hint:'x 이동이 크고 y 이동은 작아요.' },
-  { a:1, tx: 1, ty: 4, base:'y = x²', target:'y = (x − 1)² + 4',   hint:'x 이동은 작고 y 이동이 상대적으로 커요.' },
-  { a:1, tx:-2, ty: 5, base:'y = x²', target:'y = (x + 2)² + 5',   hint:'두 방향 모두 양수인가요, 음수인가요?' },
-  { a:1, tx: 4, ty:-2, base:'y = x²', target:'y = (x − 4)² − 2',   hint:'꼭짓점의 사분면을 먼저 파악해보세요.' },
-  { a:1, tx:-3, ty: 4, base:'y = x²', target:'y = (x + 3)² + 4',   hint:'꼭짓점이 2사분면 위쪽에 있어요.' },
-  { a:1, tx: 0, ty:-5, base:'y = x²', target:'y = x² − 5',          hint:'좌우 이동은 없고 한 방향으로만 이동했어요.' },
-  { a:1, tx: 5, ty: 2, base:'y = x²', target:'y = (x − 5)² + 2',   hint:'식에서 두 이동량을 각각 읽어보세요.' },
-  { a:1, tx:-1, ty: 5, base:'y = x²', target:'y = (x + 1)² + 5',   hint:'x 이동은 작은데 y 이동은 크네요.' },
-  { a:1, tx: 2, ty: 0, base:'y = x²', target:'y = (x − 2)²',        hint:'상수항이 없다면 y 방향 이동은 어떻게 되는 걸까요?' },
-  { a:1, tx: 0, ty: 3, base:'y = x²', target:'y = x² + 3',          hint:'x 관련 부분이 바뀌지 않았어요.' },
-  { a:1, tx:-4, ty: 1, base:'y = x²', target:'y = (x + 4)² + 1',   hint:'꼭짓점이 2사분면에 있어요.' },
-  { a:1, tx: 3, ty:-2, base:'y = x²', target:'y = (x − 3)² − 2',   hint:'꼭짓점이 4사분면에 있어요.' },
-  { a:1, tx:-2, ty:-1, base:'y = x²', target:'y = (x + 2)² − 1',   hint:'두 방향의 부호가 서로 다른지 같은지 확인해보세요.' },
-  { a:1, tx: 1, ty:-3, base:'y = x²', target:'y = (x − 1)² − 3',   hint:'꼭짓점이 4사분면에 있어요.' },
-];
+// ── 수식 포맷 헬퍼 ──────────────────────────────────────────────
+function fmtA(a) {
+  if (a === 1) return '';
+  if (a === 0.5) return '0.5';
+  return String(a);
+}
+function fmtStdTarget(a, tx, ty) {
+  let s = 'y = ';
+  if (a !== 1) s += `${fmtA(a)}`;
+  if (tx === 0) s += 'x²';
+  else if (tx > 0) s += `(x − ${tx})²`;
+  else s += `(x + ${Math.abs(tx)})²`;
+  if (ty > 0) s += ` + ${ty}`;
+  else if (ty < 0) s += ` − ${Math.abs(ty)}`;
+  return s;
+}
+function fmtBase(a) {
+  if (a === 1) return 'y = x²';
+  return `y = ${fmtA(a)}x²`;
+}
+function fmtGenBase(a, tx, ty) {
+  const b = -2 * a * tx;
+  const c = a * tx * tx + ty;
+  let s = (a === 1) ? 'y = x²' : `y = ${fmtA(a)}x²`;
+  if (b > 0) s += ` + ${b}x`;
+  else if (b < 0) s += ` − ${Math.abs(b)}x`;
+  if (c > 0) s += ` + ${c}`;
+  else if (c < 0) s += ` − ${Math.abs(c)}`;
+  return s;
+}
+function quadrant(tx, ty) {
+  if (tx > 0 && ty > 0) return '1사분면';
+  if (tx < 0 && ty > 0) return '2사분면';
+  if (tx < 0 && ty < 0) return '3사분면';
+  if (tx > 0 && ty < 0) return '4사분면';
+  return null;
+}
+function makeStdHint(a, tx, ty) {
+  let hint = '';
+  if (tx === 0 && ty === 0) return `기본 포물선이에요. 이동 없이 원점이 꼭짓점이에요.`;
+  if (a !== 1) {
+    const shape = a > 1 ? '좁은' : '넓은';
+    hint += `a=${fmtA(a)}이라 ${shape} 포물선이에요. `;
+  }
+  if (tx === 0) hint += `좌우 이동 없이 위아래로만 ${Math.abs(ty)} 이동했어요. `;
+  else if (ty === 0) hint += `위아래 이동 없이 좌우로만 ${Math.abs(tx)} 이동했어요. `;
+  else {
+    const qd = quadrant(tx, ty);
+    if (qd) hint += `꼭짓점이 ${qd}에 있어요. `;
+  }
+  hint += `꼭짓점은 (${tx}, ${ty})예요.`;
+  return hint;
+}
+function makeGenHint(a, tx, ty) {
+  let hint = '';
+  if (a === 1) hint = `꼭짓점 x좌표는 −b÷2로 구해요. `;
+  else hint = `꼭짓점 x좌표는 −b÷(2×${fmtA(a)})로 구해요. `;
+  const qd = quadrant(tx, ty);
+  if (qd) hint += `꼭짓점이 ${qd}에 있어요. `;
+  hint += `꼭짓점을 표준형으로 바꾸면 ${fmtStdTarget(a, tx, ty)}이에요.`;
+  return hint;
+}
 
-// 표준형 a≠1 풀 (15개 → 랜덤 3개 선택)
-const POOL_STD_A = [
-  { a:2,   tx: 2, ty:-1, base:'y = 2x²',   target:'y = 2(x − 2)² − 1',   hint:'a값이 1이 아닐 때도 이동 방법은 같아요. 폭이 어떻게 다른가요?' },
-  { a:0.5, tx:-2, ty: 3, base:'y = 0.5x²', target:'y = 0.5(x + 2)² + 3', hint:'a < 1이면 포물선이 어떻게 달라 보이나요?' },
-  { a:2,   tx:-3, ty:-2, base:'y = 2x²',   target:'y = 2(x + 3)² − 2',   hint:'포물선의 폭은 a값이 결정해요. 이동 방향은 어떻게 읽을까요?' },
-  { a:2,   tx: 1, ty: 2, base:'y = 2x²',   target:'y = 2(x − 1)² + 2',   hint:'좁은 포물선이지만 이동 규칙은 동일해요.' },
-  { a:0.5, tx: 3, ty:-1, base:'y = 0.5x²', target:'y = 0.5(x − 3)² − 1', hint:'넓은 포물선을 이동할 때도 꼭짓점 위치를 기준으로 생각하세요.' },
-  { a:2,   tx:-1, ty: 4, base:'y = 2x²',   target:'y = 2(x + 1)² + 4',   hint:'a=2인 포물선, 꼭짓점이 2사분면에 있어요.' },
-  { a:0.5, tx:-3, ty: 2, base:'y = 0.5x²', target:'y = 0.5(x + 3)² + 2', hint:'a=0.5인 포물선, 꼭짓점 위치를 식에서 읽어보세요.' },
-  { a:2,   tx: 4, ty:-3, base:'y = 2x²',   target:'y = 2(x − 4)² − 3',   hint:'이동량이 큰 편이에요. 꼭짓점이 어느 사분면인지 확인하세요.' },
-  { a:0.5, tx: 2, ty: 4, base:'y = 0.5x²', target:'y = 0.5(x − 2)² + 4', hint:'a=0.5, 꼭짓점이 1사분면 위쪽이에요.' },
-  { a:2,   tx:-2, ty:-3, base:'y = 2x²',   target:'y = 2(x + 2)² − 3',   hint:'좁은 포물선, 꼭짓점이 3사분면에 있어요.' },
-  { a:0.5, tx: 1, ty:-2, base:'y = 0.5x²', target:'y = 0.5(x − 1)² − 2', hint:'a=0.5인 넓은 포물선. 꼭짓점이 4사분면에 있어요.' },
-  { a:2,   tx: 3, ty: 1, base:'y = 2x²',   target:'y = 2(x − 3)² + 1',   hint:'꼭짓점이 1사분면에 있어요.' },
-  { a:0.5, tx:-4, ty:-1, base:'y = 0.5x²', target:'y = 0.5(x + 4)² − 1', hint:'x 이동이 크네요. 부호도 잘 확인해보세요.' },
-  { a:2,   tx: 0, ty: 3, base:'y = 2x²',   target:'y = 2x² + 3',          hint:'x 방향 이동은 없어요. y 방향만 이동했어요.' },
-  { a:0.5, tx: 4, ty: 2, base:'y = 0.5x²', target:'y = 0.5(x − 4)² + 2', hint:'넓은 포물선, 꼭짓점이 1사분면 오른쪽에 있어요.' },
-];
+// ── 풀 자동 생성 ────────────────────────────────────────────────
+function makePool(aValues, txRange, tyRange, general) {
+  const pool = [], seen = new Set();
+  for (const a of aValues) {
+    for (let tx = txRange[0]; tx <= txRange[1]; tx++) {
+      for (let ty = tyRange[0]; ty <= tyRange[1]; ty++) {
+        const key = `${a},${tx},${ty}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const base = general ? fmtGenBase(a, tx, ty) : fmtBase(a);
+        const target = general
+          ? `꼭짓점 (${tx < 0 ? '−' + Math.abs(tx) : tx}, ${ty < 0 ? '−' + Math.abs(ty) : ty})`
+          : fmtStdTarget(a, tx, ty);
+        const hint = general ? makeGenHint(a, tx, ty) : makeStdHint(a, tx, ty);
+        const entry = { a, tx, ty, base, target, hint };
+        if (general) entry.general = true;
+        pool.push(entry);
+      }
+    }
+  }
+  return pool;
+}
 
-// 일반형 a=1 풀 (30개 → 랜덤 5개 선택)
-const POOL_GEN = [
-  { a:1, tx:-1, ty: 2, base:'y = x² + 2x + 3',    target:'꼭짓점 (−1, 2)',   hint:'b의 절반을 생각해보세요. 꼭짓점 x좌표의 부호는 어떻게 될까요?', general:true },
-  { a:1, tx: 2, ty:-3, base:'y = x² − 4x + 1',    target:'꼭짓점 (2, −3)',   hint:'b가 음수일 때 꼭짓점 x좌표의 부호는 어떻게 될까요?', general:true },
-  { a:1, tx:-3, ty:-4, base:'y = x² + 6x + 5',    target:'꼭짓점 (−3, −4)',  hint:'b=6일 때 꼭짓점 x좌표를 먼저 구하고, 그 값을 식에 대입해보세요.', general:true },
-  { a:1, tx: 1, ty:-4, base:'y = x² − 2x − 3',    target:'꼭짓점 (1, −4)',   hint:'꼭짓점 x좌표를 구한 후 y좌표를 계산할 때 c의 부호를 주의하세요.', general:true },
-  { a:1, tx:-2, ty: 3, base:'y = x² + 4x + 7',    target:'꼭짓점 (−2, 3)',   hint:'꼭짓점 y좌표가 양수인지 음수인지 먼저 예상해볼 수 있을까요?', general:true },
-  { a:1, tx: 3, ty:-4, base:'y = x² − 6x + 5',    target:'꼭짓점 (3, −4)',   hint:'b의 절댓값이 클수록 꼭짓점이 원점에서 멀어져요.', general:true },
-  { a:1, tx:-1, ty:-5, base:'y = x² + 2x − 4',    target:'꼭짓점 (−1, −5)',  hint:'c가 음수이면 꼭짓점 y좌표에 어떤 영향을 줄까요?', general:true },
-  { a:1, tx: 2, ty: 1, base:'y = x² − 4x + 5',    target:'꼭짓점 (2, 1)',    hint:'꼭짓점 y좌표가 양수이려면 c가 얼마나 커야 할까요?', general:true },
-  { a:1, tx:-4, ty:-1, base:'y = x² + 8x + 15',   target:'꼭짓점 (−4, −1)',  hint:'b가 클수록 x 이동이 커요. 방향도 같이 확인해보세요.', general:true },
-  { a:1, tx: 1, ty: 2, base:'y = x² − 2x + 3',    target:'꼭짓점 (1, 2)',    hint:'꼭짓점이 1사분면에 있어요. x와 y 모두 양수예요.', general:true },
-  { a:1, tx: 3, ty: 2, base:'y = x² − 6x + 11',   target:'꼭짓점 (3, 2)',    hint:'꼭짓점이 1사분면에 있어요. 이동량이 크지 않아요.', general:true },
-  { a:1, tx:-2, ty:-5, base:'y = x² + 4x − 1',    target:'꼭짓점 (−2, −5)',  hint:'꼭짓점이 3사분면에 있어요. c의 영향을 확인해보세요.', general:true },
-  { a:1, tx: 4, ty: 1, base:'y = x² − 8x + 17',   target:'꼭짓점 (4, 1)',    hint:'b의 크기가 크면 x 이동도 커요.', general:true },
-  { a:1, tx:-3, ty: 1, base:'y = x² + 6x + 10',   target:'꼭짓점 (−3, 1)',   hint:'꼭짓점 y좌표가 양수인 이유를 c에서 찾을 수 있어요.', general:true },
-  { a:1, tx: 0, ty: 2, base:'y = x² + 2',          target:'꼭짓점 (0, 2)',    hint:'b=0이면 꼭짓점 x좌표가 어떻게 될까요?', general:true },
-  { a:1, tx:-1, ty: 4, base:'y = x² + 2x + 5',    target:'꼭짓점 (−1, 4)',   hint:'꼭짓점이 2사분면에 있어요.', general:true },
-  { a:1, tx: 2, ty:-5, base:'y = x² − 4x − 1',    target:'꼭짓점 (2, −5)',   hint:'꼭짓점이 4사분면에 있어요. c의 영향을 생각해보세요.', general:true },
-  { a:1, tx:-4, ty: 3, base:'y = x² + 8x + 19',   target:'꼭짓점 (−4, 3)',   hint:'b가 크고 양수면 꼭짓점이 어느 방향으로 이동할까요?', general:true },
-  { a:1, tx: 1, ty:-1, base:'y = x² − 2x',         target:'꼭짓점 (1, −1)',   hint:'c=0인 경우도 꼭짓점 계산 방법은 같아요.', general:true },
-  { a:1, tx:-3, ty:-2, base:'y = x² + 6x + 7',    target:'꼭짓점 (−3, −2)',  hint:'꼭짓점이 3사분면에 있어요.', general:true },
-  { a:1, tx: 3, ty:-1, base:'y = x² − 6x + 8',    target:'꼭짓점 (3, −1)',   hint:'꼭짓점이 4사분면에 살짝 걸쳐 있어요.', general:true },
-  { a:1, tx:-2, ty: 1, base:'y = x² + 4x + 5',    target:'꼭짓점 (−2, 1)',   hint:'꼭짓점이 2사분면에 있어요.', general:true },
-  { a:1, tx: 4, ty:-3, base:'y = x² − 8x + 13',   target:'꼭짓점 (4, −3)',   hint:'x 이동이 크고 꼭짓점이 4사분면에 있어요.', general:true },
-  { a:1, tx:-1, ty:-3, base:'y = x² + 2x − 2',    target:'꼭짓점 (−1, −3)',  hint:'꼭짓점이 3사분면에 있어요.', general:true },
-  { a:1, tx: 2, ty: 4, base:'y = x² − 4x + 8',    target:'꼭짓점 (2, 4)',    hint:'꼭짓점 y좌표가 꽤 크네요. c값을 잘 살펴보세요.', general:true },
-  { a:1, tx:-3, ty: 5, base:'y = x² + 6x + 14',   target:'꼭짓점 (−3, 5)',   hint:'꼭짓점이 2사분면 위쪽에 있어요.', general:true },
-  { a:1, tx: 1, ty: 5, base:'y = x² − 2x + 6',    target:'꼭짓점 (1, 5)',    hint:'꼭짓점 y좌표가 x좌표보다 훨씬 크네요.', general:true },
-  { a:1, tx:-2, ty:-3, base:'y = x² + 4x + 1',    target:'꼭짓점 (−2, −3)',  hint:'꼭짓점이 3사분면에 있어요.', general:true },
-  { a:1, tx: 3, ty: 4, base:'y = x² − 6x + 13',   target:'꼭짓점 (3, 4)',    hint:'꼭짓점이 1사분면 위쪽에 있어요.', general:true },
-  { a:1, tx:-4, ty:-2, base:'y = x² + 8x + 14',   target:'꼭짓점 (−4, −2)',  hint:'b가 크고 꼭짓점이 3사분면에 있어요.', general:true },
-];
+// 표준형 a=1: tx ∈ [-5,5], ty ∈ [-5,8], 꼭짓점 원점 제외
+const POOL_STD = makePool([1], [-5, 5], [-5, 8], false)
+  .filter(p => !(p.tx === 0 && p.ty === 0));
 
-// 일반형 a≠1 풀 (9개 → 랜덤 2개 선택)
-const POOL_GEN_A = [
-  { a:2,   tx: 2, ty:-2, base:'y = 2x² − 8x + 6',   target:'꼭짓점 (2, −2)',   hint:'a≠1일 때 꼭짓점 x좌표 공식은 −b÷(2a)예요. a값을 먼저 확인하세요.', general:true },
-  { a:0.5, tx:-2, ty:-1, base:'y = 0.5x² + 2x + 1', target:'꼭짓점 (−2, −1)',  hint:'a=0.5일 때 2a는 얼마인가요? 그 값으로 −b를 나눠보세요.', general:true },
-  { a:2,   tx:-1, ty:-4, base:'y = 2x² + 4x − 2',   target:'꼭짓점 (−1, −4)',  hint:'a=2이면 꼭짓점 x좌표 계산 시 분모가 달라져요.', general:true },
-  { a:2,   tx: 1, ty: 3, base:'y = 2x² − 4x + 5',   target:'꼭짓점 (1, 3)',    hint:'a=2, 꼭짓점 x좌표를 먼저 구하고 식에 대입해보세요.', general:true },
-  { a:0.5, tx: 4, ty:-1, base:'y = 0.5x² − 4x + 7', target:'꼭짓점 (4, −1)',   hint:'a=0.5이면 2a=1이에요. 계산이 단순해지지 않나요?', general:true },
-  { a:2,   tx:-3, ty: 1, base:'y = 2x² + 12x + 19', target:'꼭짓점 (−3, 1)',   hint:'b가 크면 a로 나눌 때 신중하게 계산해야 해요.', general:true },
-  { a:0.5, tx: 2, ty: 2, base:'y = 0.5x² − 2x + 4', target:'꼭짓점 (2, 2)',    hint:'a=0.5인 넓은 포물선. 꼭짓점이 1사분면에 있어요.', general:true },
-  { a:2,   tx: 3, ty:-5, base:'y = 2x² − 12x + 13', target:'꼭짓점 (3, −5)',   hint:'a=2, x 이동이 크고 꼭짓점이 4사분면에 있어요.', general:true },
-  { a:0.5, tx:-3, ty: 3, base:'y = 0.5x² + 3x + 7.5', target:'꼭짓점 (−3, 3)', hint:'a=0.5, 꼭짓점이 2사분면에 있어요.', general:true },
-];
+// 표준형 a≠1: a=2,0.5, tx ∈ [-4,4], ty ∈ [-4,7]
+const POOL_STD_A = makePool([2, 0.5], [-4, 4], [-4, 7], false);
+
+// 일반형 a=1: tx ∈ [-4,4], ty ∈ [-5,7]
+const POOL_GEN = makePool([1], [-4, 4], [-5, 7], true);
+
+// 일반형 a≠1: a=2,0.5, tx ∈ [-3,3], ty ∈ [-4,6]
+const POOL_GEN_A = makePool([2, 0.5], [-3, 3], [-4, 6], true);
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 
