@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>일차함수 그래프 마스터하기</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  background: #0f1117;
+  color: #e8eaf0;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1rem 0.75rem 2rem;
+}
+.container { width: 100%; max-width: 480px; }
+
+/* 뒤로가기 */
+.back-link { display: inline-block; color: #5b6280; font-size: 13px; text-decoration: none; margin-bottom: 0.6rem; }
+.back-link:hover { color: #9199b0; }
+
+/* 헤더 */
+.header { text-align: center; margin-bottom: 0.9rem; }
+.header h1 { font-size: 1.25rem; font-weight: 700; }
+.header p { color: #9199b0; font-size: 0.8rem; margin-top: 3px; }
+
+/* 상태바 */
+.status-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 0.75rem; }
+.badge { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #9199b0; text-align: center; }
+.badge b { color: #e8eaf0; font-size: 14px; display: block; margin-top: 1px; }
+.badge.combo b { color: #f0c060; }
+.badge.combo { border-color: rgba(240,192,96,0.3); }
+
+/* 타이머 */
+.timer-wrap { margin-bottom: 0.9rem; }
+.timer-bar-bg { height: 8px; background: #22263a; border-radius: 4px; overflow: hidden; }
+.timer-bar-fill { height: 100%; border-radius: 4px; transition: width 0.1s linear, background 0.3s; }
+.timer-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.timer-text { font-size: 13px; font-family: monospace; }
+.timer-text.urgent { color: #e96363; }
+
+/* 미션 카드 */
+.mission-card { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; }
+.mission-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #5b8dee; margin-bottom: 5px; }
+.mission-text { font-size: 0.88rem; color: #9199b0; }
+.mission-target { font-size: 1.4rem; color: #f0c060; font-weight: 700; margin-top: 4px; font-family: monospace; letter-spacing: 0.5px; }
+
+/* 힌트 */
+.hint-wrap { margin-top: 8px; }
+.hint-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 14px; font-size: 13px; font-family: inherit; color: #9199b0; cursor: pointer; transition: background 0.15s; min-height: 36px; }
+.hint-btn:hover { background: #22263a; }
+.hint-text { display: none; font-size: 12.5px; color: #aab0c4; margin-top: 6px; line-height: 1.5; padding: 6px 10px; background: #22263a; border-radius: 8px; }
+.hint-text.show { display: block; }
+
+/* 점 범례 */
+.legend { display: flex; gap: 14px; margin-bottom: 0.5rem; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #9199b0; }
+.dot-a { width: 12px; height: 12px; border-radius: 50%; background: #5b8dee; display: inline-block; }
+.dot-b { width: 12px; height: 12px; border-radius: 50%; background: #f0a060; display: inline-block; }
+
+/* 캔버스 */
+.canvas-wrap { position: relative; margin-bottom: 0.6rem; border-radius: 12px; overflow: hidden; touch-action: none; user-select: none; }
+canvas { display: block; width: 100%; }
+
+/* 정보 행 */
+.info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; gap: 8px; }
+.coord-box { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-family: monospace; color: #9199b0; flex: 1; text-align: center; }
+.coord-box b { color: #5b8dee; }
+.coord-box.b-box b { color: #f0a060; }
+
+/* 피드백 */
+.feedback { min-height: 34px; font-size: 13.5px; line-height: 1.6; margin-bottom: 0.75rem; color: #9199b0; }
+.feedback.ok { color: #7ec8a0; }
+.feedback.ng { color: #f09090; }
+.feedback.warn { color: #f0c060; }
+.feedback.timeout { color: #e96363; }
+
+/* 점수 팝업 */
+.score-popup { position: fixed; pointer-events: none; font-size: 22px; font-weight: 700; color: #7ec8a0; opacity: 0; transition: opacity 0.2s; z-index: 999; font-family: monospace; }
+
+/* 버튼 */
+.btn-row { display: flex; gap: 9px; }
+.btn { background: transparent; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 13px 16px; font-size: 15px; font-family: inherit; color: #e8eaf0; cursor: pointer; transition: background 0.15s; min-height: 48px; flex: 1; -webkit-tap-highlight-color: transparent; }
+.btn:hover { background: #22263a; }
+.btn-primary { background: #5b8dee; border-color: #5b8dee; color: #fff; font-weight: 600; }
+.btn-primary:hover { background: #4a7cde; }
+
+/* 결과 */
+.result-wrap { text-align: center; padding: 2.5rem 1rem; }
+.result-emoji { font-size: 52px; margin-bottom: 1rem; }
+.result-score { font-size: 3rem; font-weight: 700; margin-bottom: 0.25rem; }
+.result-score span { font-size: 1.2rem; color: #9199b0; font-weight: 400; }
+.result-msg { color: #9199b0; font-size: 14px; line-height: 1.7; margin-bottom: 1.5rem; }
+.result-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 2rem; }
+.stat-card { background: #1a1d27; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; text-align: center; font-size: 12px; color: #9199b0; }
+.stat-card b { display: block; font-size: 1.3rem; color: #e8eaf0; margin-bottom: 2px; }
+.result-btns { display: flex; gap: 10px; justify-content: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="../">← 게임 목록으로</a>
+  <div class="header">
+    <h1>📈 일차함수 그래프</h1>
+    <p>두 점 A, B를 직선 위에 놓고 그리기를 눌러요!</p>
+  </div>
+  <div id="game"></div>
+</div>
+<div id="score-popup" class="score-popup"></div>
+
+<script>
+const POOL = [
+  // 원점 통과
+  { slope:1,  intercept:0,  formula:'y = x',       hint:'원점 (0, 0)을 지나고 기울기가 1이에요. x가 1 늘면 y도 1 늘어요.' },
+  { slope:2,  intercept:0,  formula:'y = 2x',      hint:'원점을 지나고 기울기가 2예요. x가 1 늘면 y는 2 늘어요.' },
+  { slope:-1, intercept:0,  formula:'y = −x',      hint:'원점을 지나고 기울기가 −1이에요. x가 늘수록 y는 줄어요.' },
+  { slope:-2, intercept:0,  formula:'y = −2x',     hint:'원점을 지나고 기울기가 −2예요. 오른쪽으로 갈수록 가파르게 내려가요.' },
+  { slope:3,  intercept:0,  formula:'y = 3x',      hint:'원점을 지나고 기울기가 3이에요. 아주 가파르게 올라가요.' },
+  { slope:-3, intercept:0,  formula:'y = −3x',     hint:'원점을 지나고 기울기가 −3이에요. 아주 가파르게 내려가요.' },
+  // 양의 기울기
+  { slope:1,  intercept:1,  formula:'y = x + 1',   hint:'y절편이 1이에요. (0, 1)을 먼저 찍고 기울기 1로 다음 점을 찾아보세요.' },
+  { slope:1,  intercept:2,  formula:'y = x + 2',   hint:'y절편이 2예요. (0, 2)와 (1, 3)을 찍어보세요.' },
+  { slope:1,  intercept:-1, formula:'y = x − 1',   hint:'y절편이 −1이에요. (0, −1)과 (2, 1)을 찍어보세요.' },
+  { slope:1,  intercept:-2, formula:'y = x − 2',   hint:'y절편이 −2예요. x절편(y=0인 점)은 어디일까요?' },
+  { slope:1,  intercept:3,  formula:'y = x + 3',   hint:'y절편이 3이에요. (0, 3)에서 기울기 1로 올라가요.' },
+  { slope:1,  intercept:-3, formula:'y = x − 3',   hint:'y절편이 −3이에요. (0, −3)에서 시작해보세요.' },
+  { slope:2,  intercept:1,  formula:'y = 2x + 1',  hint:'y절편이 1이에요. (0, 1)과 (1, 3)을 찍어보세요.' },
+  { slope:2,  intercept:-1, formula:'y = 2x − 1',  hint:'y절편이 −1이에요. (0, −1)에서 기울기 2로 올라가요.' },
+  { slope:2,  intercept:2,  formula:'y = 2x + 2',  hint:'y절편이 2예요. x절편은 −1이에요. (0, 2)와 (1, 4)를 찍어보세요.' },
+  { slope:2,  intercept:-2, formula:'y = 2x − 2',  hint:'y절편이 −2예요. x절편(y=0)은 1이에요.' },
+  { slope:2,  intercept:4,  formula:'y = 2x + 4',  hint:'y절편이 4예요. (0, 4)에서 기울기 2로 올라가요.' },
+  { slope:2,  intercept:-4, formula:'y = 2x − 4',  hint:'y절편이 −4예요. x절편은 2예요. (2, 0)을 지나요.' },
+  { slope:3,  intercept:1,  formula:'y = 3x + 1',  hint:'기울기가 가팔라요. y절편은 1이에요. (0, 1)과 (1, 4)를 찍어보세요.' },
+  { slope:3,  intercept:-3, formula:'y = 3x − 3',  hint:'x절편이 1이에요. (1, 0)과 (2, 3)을 찍어보세요.' },
+  // 음의 기울기
+  { slope:-1, intercept:1,  formula:'y = −x + 1',  hint:'y절편이 1이에요. (0, 1)에서 오른쪽으로 갈수록 내려가요.' },
+  { slope:-1, intercept:2,  formula:'y = −x + 2',  hint:'y절편이 2예요. x절편도 2예요. (0, 2)와 (2, 0)을 찍어보세요.' },
+  { slope:-1, intercept:-1, formula:'y = −x − 1',  hint:'y절편이 −1이에요. (0, −1)에서 내려가요.' },
+  { slope:-1, intercept:3,  formula:'y = −x + 3',  hint:'y절편이 3이에요. (0, 3)과 (3, 0)을 찍어보세요.' },
+  { slope:-1, intercept:-3, formula:'y = −x − 3',  hint:'y절편이 −3이에요. 기울기도 음수, 절편도 음수예요.' },
+  { slope:-2, intercept:2,  formula:'y = −2x + 2', hint:'y절편이 2예요. x절편은 1이에요. (0, 2)와 (1, 0)을 찍어보세요.' },
+  { slope:-2, intercept:4,  formula:'y = −2x + 4', hint:'y절편이 4예요. (0, 4)에서 가파르게 내려가요.' },
+  { slope:-2, intercept:-2, formula:'y = −2x − 2', hint:'기울기도, 절편도 모두 음수예요. (0, −2)에서 내려가요.' },
+  { slope:-3, intercept:3,  formula:'y = −3x + 3', hint:'x절편이 1, y절편이 3이에요. (0, 3)과 (1, 0)을 찍어보세요.' },
+  { slope:-3, intercept:-1, formula:'y = −3x − 1', hint:'y절편이 −1이에요. 아주 가파르게 내려가요.' },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+function buildStages() { return shuffle(POOL).slice(0, 15); }
+
+let STAGES = buildStages();
+let TOTAL = STAGES.length;
+const BASE_SCORE = 100;
+const TIME_LIMIT = 15;
+
+let current = 0, totalScore = 0, combo = 0, maxCombo = 0, correctCount = 0;
+let dragAX = -3, dragAY = 0;
+let dragBX = 3,  dragBY = 0;
+let isDragging = false, activePoint = null;
+let dragStartX = 0, dragStartY = 0;
+let dragBaseAX = 0, dragBaseAY = 0, dragBaseBX = 0, dragBaseBY = 0;
+let submitted = false, timeLeft = TIME_LIMIT, timerInterval = null;
+let lineDrawn = false;
+
+const GW = 400, GH = 420;
+const X_MIN = -7, X_MAX = 7, Y_MIN = -6, Y_MAX = 8;
+
+function toCanvasX(x) { return (x - X_MIN) / (X_MAX - X_MIN) * GW; }
+function toCanvasY(y) { return GH - (y - Y_MIN) / (Y_MAX - Y_MIN) * GH; }
+function toGraphDX(dpx) { return dpx / GW * (X_MAX - X_MIN); }
+function toGraphDY(dpy) { return -dpy / GH * (Y_MAX - Y_MIN); }
+
+function drawLineFn(ctx, slope, intercept, color, lw, dash) {
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+  ctx.beginPath();
+  let first = true;
+  for (let x = X_MIN; x <= X_MAX; x += 0.05) {
+    const y = slope * x + intercept;
+    if (y < Y_MIN - 2 || y > Y_MAX + 2) { first = true; continue; }
+    const px = toCanvasX(x), py = toCanvasY(y);
+    first ? (ctx.moveTo(px, py), first = false) : ctx.lineTo(px, py);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+}
+
+function drawLineThroughPoints(ctx, ax, ay, bx, by, color, lw) {
+  const dx = bx - ax;
+  if (Math.abs(dx) < 0.001) return;
+  const slope = (by - ay) / dx;
+  const intercept = ay - slope * ax;
+  drawLineFn(ctx, slope, intercept, color, lw);
+}
+
+function drawPoint(ctx, gx, gy, label, fillColor, glowColor) {
+  const px = toCanvasX(gx), py = toCanvasY(gy);
+  if (glowColor) {
+    ctx.strokeStyle = glowColor; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.arc(px, py, 11, 0, Math.PI*2); ctx.stroke();
+  }
+  ctx.fillStyle = fillColor;
+  ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, px, py);
+}
+
+function isOnLine(gx, gy, slope, intercept) {
+  return Math.abs(gy - (slope * gx + intercept)) < 0.49;
+}
+
+function drawScene(state) {
+  const canvas = document.getElementById('gc');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const st = STAGES[current];
+  ctx.clearRect(0, 0, GW, GH);
+  ctx.fillStyle = '#13151f'; ctx.fillRect(0, 0, GW, GH);
+
+  // 그리드
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  for (let x = Math.ceil(X_MIN); x <= X_MAX; x++) {
+    ctx.beginPath(); ctx.moveTo(toCanvasX(x), 0); ctx.lineTo(toCanvasX(x), GH); ctx.stroke();
+  }
+  for (let y = Math.ceil(Y_MIN); y <= Y_MAX; y++) {
+    ctx.beginPath(); ctx.moveTo(0, toCanvasY(y)); ctx.lineTo(GW, toCanvasY(y)); ctx.stroke();
+  }
+
+  // 축
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(toCanvasX(0), 0); ctx.lineTo(toCanvasX(0), GH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, toCanvasY(0)); ctx.lineTo(GW, toCanvasY(0)); ctx.stroke();
+
+  // 축 레이블
+  ctx.fillStyle = '#9199b0'; ctx.font = '11px monospace'; ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'center';
+  for (let x = X_MIN+1; x <= X_MAX; x++) {
+    if (x !== 0 && x % 2 === 0) ctx.fillText(x, toCanvasX(x), toCanvasY(0)+14);
+  }
+  ctx.textAlign = 'right';
+  for (let y = Y_MIN+1; y <= Y_MAX; y++) {
+    if (y !== 0 && y % 2 === 0) ctx.fillText(y, toCanvasX(0)-5, toCanvasY(y)+4);
+  }
+  ctx.fillText('0', toCanvasX(0)-5, toCanvasY(0)+14);
+
+  if (state === 'correct') {
+    // 정답 직선 초록
+    drawLineFn(ctx, st.slope, st.intercept, '#7ec8a0', 2.5);
+    drawPoint(ctx, dragAX, dragAY, 'A', '#7ec8a0', 'rgba(126,200,160,0.3)');
+    drawPoint(ctx, dragBX, dragBY, 'B', '#7ec8a0', 'rgba(126,200,160,0.3)');
+  } else if (state === 'wrong') {
+    // 사용자가 그린 직선 (흐리게)
+    if (Math.abs(dragBX - dragAX) > 0.1) {
+      drawLineThroughPoints(ctx, dragAX, dragAY, dragBX, dragBY, 'rgba(91,141,238,0.35)', 2);
+    }
+    // 정답 직선 (노란 점선)
+    drawLineFn(ctx, st.slope, st.intercept, 'rgba(240,192,96,0.6)', 2, [6,4]);
+    // 각 점 - 맞으면 초록, 틀리면 빨강
+    const aOk = isOnLine(dragAX, dragAY, st.slope, st.intercept);
+    const bOk = isOnLine(dragBX, dragBY, st.slope, st.intercept);
+    drawPoint(ctx, dragAX, dragAY, 'A', aOk ? '#7ec8a0' : '#e96363');
+    drawPoint(ctx, dragBX, dragBY, 'B', bOk ? '#7ec8a0' : '#e96363');
+  } else {
+    // idle / drawn
+    if (lineDrawn && Math.abs(dragBX - dragAX) > 0.1) {
+      drawLineThroughPoints(ctx, dragAX, dragAY, dragBX, dragBY, 'rgba(91,141,238,0.5)', 2);
+    }
+    const aSnapped = Number.isInteger(dragAX) && Number.isInteger(dragAY);
+    const bSnapped = Number.isInteger(dragBX) && Number.isInteger(dragBY);
+    drawPoint(ctx, dragAX, dragAY, 'A', '#5b8dee', aSnapped ? 'rgba(91,141,238,0.3)' : null);
+    drawPoint(ctx, dragBX, dragBY, 'B', '#f0a060', bSnapped ? 'rgba(240,160,96,0.3)' : null);
+  }
+
+  // 좌표 업데이트
+  const ca = document.getElementById('coord-a');
+  const cb = document.getElementById('coord-b');
+  if (ca) ca.innerHTML = `A: <b>(${Math.round(dragAX*10)/10}, ${Math.round(dragAY*10)/10})</b>`;
+  if (cb) cb.innerHTML = `B: <b>(${Math.round(dragBX*10)/10}, ${Math.round(dragBY*10)/10})</b>`;
+}
+
+function startTimer() {
+  timeLeft = TIME_LIMIT; updateTimerUI();
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.1;
+    if (timeLeft <= 0) { timeLeft = 0; updateTimerUI(); clearInterval(timerInterval); onTimeout(); }
+    else updateTimerUI();
+  }, 100);
+}
+
+function updateTimerUI() {
+  const fill = document.getElementById('timer-fill'), text = document.getElementById('timer-text');
+  if (!fill || !text) return;
+  const pct = (timeLeft / TIME_LIMIT) * 100;
+  fill.style.width = pct + '%';
+  text.textContent = (Math.ceil(timeLeft * 10) / 10).toFixed(1) + '초';
+  if (timeLeft <= TIME_LIMIT * 0.2) { fill.style.background = '#e96363'; text.className = 'timer-text urgent'; }
+  else if (timeLeft <= TIME_LIMIT * 0.5) { fill.style.background = '#f0c060'; text.className = 'timer-text'; }
+  else { fill.style.background = '#5b8dee'; text.className = 'timer-text'; }
+}
+
+function onTimeout() {
+  if (submitted) return;
+  submitted = true; combo = 0; updateCombo();
+  drawScene('wrong');
+  const st = STAGES[current], fb = document.getElementById('fb');
+  fb.className = 'feedback timeout';
+  fb.textContent = `⏰ 시간 초과! 노란 점선이 정답 직선이에요.`;
+  showNextBtn();
+}
+
+function updateCombo() { const el = document.getElementById('combo-val'); if (el) el.textContent = combo + 'x'; }
+function updateScore() { const el = document.getElementById('score-val'); if (el) el.textContent = totalScore; }
+
+function showScorePopup(pts, canvas) {
+  const popup = document.getElementById('score-popup'), rect = canvas.getBoundingClientRect();
+  popup.textContent = '+' + pts;
+  popup.style.left = (rect.left + rect.width / 2 - 30) + 'px';
+  popup.style.top = (rect.top + 60) + 'px';
+  popup.style.opacity = '1';
+  popup.style.fontSize = pts >= 200 ? '28px' : '22px';
+  popup.style.color = pts >= 200 ? '#f0c060' : '#7ec8a0';
+  setTimeout(() => { popup.style.opacity = '0'; }, 900);
+}
+
+function checkAnswer() {
+  if (submitted) return;
+
+  const fb = document.getElementById('fb');
+
+  // 두 점이 같은 x좌표인지 확인
+  if (Math.abs(dragAX - dragBX) < 0.5) {
+    fb.className = 'feedback warn';
+    fb.textContent = '⚠️ A와 B가 너무 가까워요! 서로 다른 x 위치에 놓아주세요.';
+    return;
+  }
+
+  submitted = true;
+  clearInterval(timerInterval);
+  lineDrawn = true;
+
+  const st = STAGES[current];
+  const aOk = isOnLine(dragAX, dragAY, st.slope, st.intercept);
+  const bOk = isOnLine(dragBX, dragBY, st.slope, st.intercept);
+  const ok = aOk && bOk;
+
+  if (ok) {
+    combo++; correctCount++;
+    if (combo > maxCombo) maxCombo = combo;
+    const timeBonus = Math.round(timeLeft * 10);
+    const comboBonus = combo >= 3 ? combo : 1;
+    const pts = (BASE_SCORE + timeBonus) * comboBonus;
+    totalScore += pts;
+    updateCombo(); updateScore();
+    drawScene('correct');
+    fb.className = 'feedback ok';
+    let msg = `✓ 정답! +${pts}점`;
+    if (timeBonus > 0) msg += ` (시간보너스 +${timeBonus})`;
+    if (combo >= 2) msg += ` 🔥 ${combo}콤보!`;
+    fb.textContent = msg;
+    const canvas = document.getElementById('gc');
+    if (canvas) showScorePopup(pts, canvas);
+  } else {
+    combo = 0; updateCombo();
+    drawScene('wrong');
+    fb.className = 'feedback ng';
+    if (!aOk && !bOk) fb.textContent = '✗ A, B 모두 직선 위에 있지 않아요. 노란 점선이 정답이에요!';
+    else if (!aOk) fb.textContent = '✗ A점이 직선 위에 있지 않아요. 노란 점선이 정답이에요!';
+    else fb.textContent = '✗ B점이 직선 위에 있지 않아요. 노란 점선이 정답이에요!';
+  }
+  showNextBtn();
+}
+
+function showNextBtn() {
+  const btnRow = document.getElementById('btn-row');
+  if (!btnRow) return;
+  btnRow.innerHTML = '';
+  const nb = document.createElement('button');
+  const isLast = current + 1 >= TOTAL;
+  nb.className = isLast ? 'btn btn-primary' : 'btn';
+  nb.textContent = isLast ? '결과 보기 →' : '다음 단계 →';
+  nb.onclick = () => { current++; current >= TOTAL ? showResult() : render(); };
+  btnRow.appendChild(nb);
+}
+
+function toggleHint() {
+  const ht = document.getElementById('hint-text'), hb = document.getElementById('hint-btn');
+  if (!ht || !hb) return;
+  ht.classList.toggle('show');
+  hb.textContent = ht.classList.contains('show') ? '힌트 숨기기' : '💡 힌트 보기';
+}
+
+function setupDrag() {
+  const canvas = document.getElementById('gc');
+  if (!canvas) return;
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const sx = GW / rect.width, sy = GH / rect.height;
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - rect.left)*sx, y: (src.clientY - rect.top)*sy };
+  }
+  function onStart(e) {
+    if (submitted) return;
+    e.preventDefault();
+    const p = getPos(e);
+    const dA = Math.hypot(p.x - toCanvasX(dragAX), p.y - toCanvasY(dragAY));
+    const dB = Math.hypot(p.x - toCanvasX(dragBX), p.y - toCanvasY(dragBY));
+    isDragging = true;
+    activePoint = dA <= dB ? 'A' : 'B';
+    dragStartX = p.x; dragStartY = p.y;
+    dragBaseAX = dragAX; dragBaseAY = dragAY;
+    dragBaseBX = dragBX; dragBaseBY = dragBY;
+    lineDrawn = false;
+  }
+  function onMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const p = getPos(e);
+    const dx = toGraphDX(p.x - dragStartX);
+    const dy = toGraphDY(p.y - dragStartY);
+    function snap(v) {
+      const r = Math.round(v);
+      return Math.abs(v - r) < 0.4 ? r : v;
+    }
+    if (activePoint === 'A') {
+      dragAX = snap(Math.max(X_MIN+0.5, Math.min(X_MAX-0.5, dragBaseAX + dx)));
+      dragAY = snap(Math.max(Y_MIN+0.5, Math.min(Y_MAX-0.5, dragBaseAY + dy)));
+    } else {
+      dragBX = snap(Math.max(X_MIN+0.5, Math.min(X_MAX-0.5, dragBaseBX + dx)));
+      dragBY = snap(Math.max(Y_MIN+0.5, Math.min(Y_MAX-0.5, dragBaseBY + dy)));
+    }
+    drawScene('idle');
+  }
+  function onEnd() { isDragging = false; activePoint = null; }
+  canvas.addEventListener('mousedown', onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onEnd);
+  canvas.addEventListener('touchstart', onStart, { passive: false });
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('touchend', onEnd);
+}
+
+function render() {
+  submitted = false; lineDrawn = false;
+  dragAX = -3; dragAY = 0;
+  dragBX = 3;  dragBY = 0;
+  clearInterval(timerInterval);
+  const st = STAGES[current];
+  const pct = Math.round(current / TOTAL * 100);
+  document.getElementById('game').innerHTML = `
+    <div class="status-bar">
+      <div class="badge">단계 <b>${current+1} / ${TOTAL}</b></div>
+      <div class="badge"><span style="font-size:11px">점수</span><b id="score-val">${totalScore}</b></div>
+      <div class="badge combo"><span style="font-size:11px">콤보</span><b id="combo-val">${combo}x</b></div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-label">
+        <span style="font-size:12px;color:#9199b0;">제한시간</span>
+        <span class="timer-text" id="timer-text">15.0초</span>
+      </div>
+      <div class="timer-bar-bg"><div class="timer-bar-fill" id="timer-fill" style="width:100%;background:#5b8dee;"></div></div>
+    </div>
+    <div style="height:3px;background:#22263a;border-radius:4px;margin-bottom:0.9rem;overflow:hidden;">
+      <div style="height:100%;width:${pct}%;background:#5b8dee;border-radius:4px;transition:width 0.4s;"></div>
+    </div>
+    <div class="mission-card">
+      <div class="mission-label">목표 함수</div>
+      <div class="mission-text">아래 일차함수를 좌표평면에 그려보세요</div>
+      <div class="mission-target">${st.formula}</div>
+      <div class="hint-wrap">
+        <button class="hint-btn" id="hint-btn" onclick="toggleHint()">💡 힌트 보기</button>
+        <div class="hint-text" id="hint-text">${st.hint}</div>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="dot-a"></span> A점 (파란색)</div>
+      <div class="legend-item"><span class="dot-b"></span> B점 (주황색)</div>
+    </div>
+    <div class="canvas-wrap"><canvas id="gc" width="${GW}" height="${GH}"></canvas></div>
+    <div class="info-row">
+      <div class="coord-box" id="coord-a">A: <b>(−3, 0)</b></div>
+      <div class="coord-box b-box" id="coord-b">B: <b>(3, 0)</b></div>
+    </div>
+    <div class="feedback" id="fb">A와 B를 직선 위에 올려놓고 그리기 버튼을 눌러요!</div>
+    <div class="btn-row" id="btn-row">
+      <button class="btn btn-primary" onclick="checkAnswer()">✏️ 그리기</button>
+      <button class="btn" onclick="resetPos()">↺ 초기화</button>
+    </div>
+  `;
+  drawScene('idle');
+  setupDrag();
+  startTimer();
+}
+
+function resetPos() {
+  if (submitted) return;
+  dragAX = -3; dragAY = 0;
+  dragBX = 3;  dragBY = 0;
+  lineDrawn = false;
+  document.getElementById('fb').textContent = 'A와 B를 직선 위에 올려놓고 그리기 버튼을 눌러요!';
+  document.getElementById('fb').className = 'feedback';
+  drawScene('idle');
+}
+
+function showResult() {
+  clearInterval(timerInterval);
+  const pct = Math.round(correctCount / TOTAL * 100);
+  let emoji, msg;
+  if (pct === 100)    { emoji = '🏆'; msg = '완벽해요! 일차함수 그래프 마스터!'; }
+  else if (pct >= 80) { emoji = '⭐'; msg = '아주 잘했어요! 조금만 더 연습하면 완벽해요.'; }
+  else if (pct >= 60) { emoji = '📘'; msg: '기울기와 y절편을 먼저 찾는 연습을 해봐요.'; msg = 'y절편(0, b)을 먼저 찍고 기울기로 다음 점을 찾아보세요.'; }
+  else                { emoji = '💪'; msg = 'y = mx + b에서 b는 y절편, m은 기울기예요. 다시 도전!'; }
+  document.getElementById('game').innerHTML = `
+    <div class="result-wrap">
+      <div class="result-emoji">${emoji}</div>
+      <div style="font-size:13px;color:#9199b0;margin-bottom:4px;">최종 점수</div>
+      <div class="result-score">${totalScore} <span>점</span></div>
+      <div class="result-msg">${msg}</div>
+      <div class="result-stats">
+        <div class="stat-card"><b>${correctCount} / ${TOTAL}</b>정답 수</div>
+        <div class="stat-card"><b>${maxCombo}x</b>최고 콤보</div>
+        <div class="stat-card"><b>${Math.round(correctCount/TOTAL*100)}%</b>정답률</div>
+      </div>
+      <div class="result-btns">
+        <button class="btn btn-primary" onclick="restartGame()">다시 하기</button>
+        <a href="../" class="btn" style="text-align:center;text-decoration:none;">목록으로</a>
+      </div>
+    </div>
+  `;
+}
+
+function restartGame() {
+  STAGES = buildStages(); TOTAL = STAGES.length;
+  current = 0; totalScore = 0; combo = 0; maxCombo = 0; correctCount = 0;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
