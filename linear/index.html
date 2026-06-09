@@ -114,11 +114,19 @@ canvas { display: block; width: 100%; }
 <div id="score-popup" class="score-popup"></div>
 
 <script>
+const FRAC_MAP = {
+  0.5: '½', 1.5: '3/2', 2.5: '5/2', 3.5: '7/2', 4.5: '9/2',
+};
+function fmtSlopeVal(m) {
+  const abs = Math.abs(m);
+  return FRAC_MAP[abs] ?? String(abs);
+}
 function fmtSlope(m) {
+  const s = fmtSlopeVal(m);
   if (m === 1) return 'x';
   if (m === -1) return '−x';
-  if (m < 0) return `−${Math.abs(m)}x`;
-  return `${m}x`;
+  if (m < 0) return `−${s}x`;
+  return `${s}x`;
 }
 function makeFormula(m, b) {
   const ms = fmtSlope(m);
@@ -127,12 +135,13 @@ function makeFormula(m, b) {
   return `y = ${ms} − ${Math.abs(b)}`;
 }
 function makeHint(m, b) {
+  const ms = fmtSlopeVal(Math.abs(m));
   let hint = b === 0
     ? '원점 (0, 0)을 지나요. '
     : `y절편이 ${b}이에요. (0, ${b})을 먼저 찍어보세요. `;
   hint += m > 0
-    ? `기울기 ${m}: x가 1 늘면 y가 ${m} 늘어요.`
-    : `기울기 ${m}: x가 1 늘면 y가 ${Math.abs(m)} 줄어요.`;
+    ? `기울기 ${ms}: x가 1 늘면 y가 ${ms} 늘어요.`
+    : `기울기 −${ms}: x가 1 늘면 y가 ${ms} 줄어요.`;
   if (!Number.isInteger(m)) hint += ' 짝수 x값을 사용하면 정수 좌표를 찾기 쉬워요.';
   if (b !== 0) {
     const xInt = -b / m;
@@ -151,13 +160,16 @@ function isValidProblem(m, b) {
   }
   return count >= 2;
 }
-const POOL = (() => {
-  const pool = [], seen = new Set();
-  function add(m, b) {
+function makeProblem(m, b) {
+  return { slope: m, intercept: b, formula: makeFormula(m, b), hint: makeHint(m, b) };
+}
+const { POOL_INT, POOL_FRAC } = (() => {
+  const intPool = [], fracPool = [], seen = new Set();
+  function add(m, b, target) {
     const key = `${m},${b}`;
     if (seen.has(key) || !isValidProblem(m, b)) return;
     seen.add(key);
-    pool.push({ slope: m, intercept: b, formula: makeFormula(m, b), hint: makeHint(m, b) });
+    target.push(makeProblem(m, b));
   }
   const intSlopes = [
     { slopes:[1,-1],   bMin:-8, bMax:8 },
@@ -170,7 +182,7 @@ const POOL = (() => {
   ];
   for (const { slopes, bMin, bMax } of intSlopes)
     for (const m of slopes)
-      for (let b = bMin; b <= bMax; b++) add(m, b);
+      for (let b = bMin; b <= bMax; b++) add(m, b, intPool);
   const fracSlopes = [
     { slopes:[0.5,-0.5], bMin:-7, bMax:7 },
     { slopes:[1.5,-1.5], bMin:-5, bMax:5 },
@@ -180,12 +192,17 @@ const POOL = (() => {
   ];
   for (const { slopes, bMin, bMax } of fracSlopes)
     for (const m of slopes)
-      for (let b = bMin; b <= bMax; b++) add(m, b);
-  return pool;
+      for (let b = bMin; b <= bMax; b++) add(m, b, fracPool);
+  return { POOL_INT: intPool, POOL_FRAC: fracPool };
 })();
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
-function buildStages() { return shuffle(POOL).slice(0, 15); }
+// 정수 기울기 10문제 앞에, 분수 기울기 5문제 뒤에 배치
+function buildStages() {
+  const intPart  = shuffle(POOL_INT).slice(0, 10);
+  const fracPart = shuffle(POOL_FRAC).slice(0, 5);
+  return [...intPart, ...fracPart];
+}
 
 let STAGES = buildStages();
 let TOTAL = STAGES.length;
