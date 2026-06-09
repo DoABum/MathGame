@@ -275,11 +275,13 @@ function drawScene(state) {
   ctx.fillStyle = '#13151f'; ctx.fillRect(0, 0, GW, GH);
 
   // 그리드
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  ctx.lineWidth = 1;
   for (let x = Math.ceil(X_MIN); x <= X_MAX; x++) {
+    ctx.strokeStyle = x % 2 === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)';
     ctx.beginPath(); ctx.moveTo(toCanvasX(x), 0); ctx.lineTo(toCanvasX(x), GH); ctx.stroke();
   }
   for (let y = Math.ceil(Y_MIN); y <= Y_MAX; y++) {
+    ctx.strokeStyle = y % 2 === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)';
     ctx.beginPath(); ctx.moveTo(0, toCanvasY(y)); ctx.lineTo(GW, toCanvasY(y)); ctx.stroke();
   }
 
