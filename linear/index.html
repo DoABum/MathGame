@@ -115,11 +115,12 @@ canvas { display: block; width: 100%; }
 
 <script>
 const FRAC_MAP = {
-  0.5: '½', 1.5: '3/2', 2.5: '5/2', 3.5: '7/2', 4.5: '9/2',
+  '0.5': '½', '1.5': '(3/2)', '2.5': '(5/2)', '3.5': '(7/2)', '4.5': '(9/2)',
 };
 function fmtSlopeVal(m) {
-  const abs = Math.abs(m);
-  return FRAC_MAP[abs] ?? String(abs);
+  var abs = String(Math.abs(m));
+  var frac = FRAC_MAP[abs];
+  return frac !== undefined ? frac : abs;
 }
 function fmtSlope(m) {
   const s = fmtSlopeVal(m);
