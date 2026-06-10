@@ -157,7 +157,7 @@ function isValidProblem(m, b) {
   let count = 0;
   for (let x = xStart; x <= 7; x += step) {
     const y = m * x + b;
-    if (y >= -6 && y <= 8) count++;
+    if (y >= -8 && y <= 10) count++;
   }
   return count >= 2;
 }
@@ -178,8 +178,6 @@ const { POOL_INT, POOL_FRAC } = (() => {
     { slopes:[3,-3],   bMin:-5, bMax:5 },
     { slopes:[4,-4],   bMin:-4, bMax:4 },
     { slopes:[5,-5],   bMin:-3, bMax:3 },
-    { slopes:[6,-6],   bMin:-2, bMax:2 },
-    { slopes:[7,-7],   bMin:-1, bMax:1 },
   ];
   for (const { slopes, bMin, bMax } of intSlopes)
     for (const m of slopes)
@@ -208,7 +206,7 @@ function buildStages() {
 let STAGES = buildStages();
 let TOTAL = STAGES.length;
 const BASE_SCORE = 100;
-const TIME_LIMIT = 15;
+const TIME_LIMIT = 30;
 
 let current = 0, totalScore = 0, combo = 0, maxCombo = 0, correctCount = 0;
 let dragAX = -3, dragAY = 0;
@@ -219,8 +217,8 @@ let dragBaseAX = 0, dragBaseAY = 0, dragBaseBX = 0, dragBaseBY = 0;
 let submitted = false, timeLeft = TIME_LIMIT, timerInterval = null;
 let lineDrawn = false;
 
-const GW = 400, GH = 420;
-const X_MIN = -7, X_MAX = 7, Y_MIN = -6, Y_MAX = 8;
+const GW = 400, GH = 460;
+const X_MIN = -7, X_MAX = 7, Y_MIN = -8, Y_MAX = 10;
 
 function toCanvasX(x) { return (x - X_MIN) / (X_MAX - X_MIN) * GW; }
 function toCanvasY(y) { return GH - (y - Y_MIN) / (Y_MAX - Y_MIN) * GH; }
@@ -292,16 +290,16 @@ function drawScene(state) {
   ctx.beginPath(); ctx.moveTo(0, toCanvasY(0)); ctx.lineTo(GW, toCanvasY(0)); ctx.stroke();
 
   // 축 레이블
-  ctx.fillStyle = '#9199b0'; ctx.font = '11px monospace'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#9199b0'; ctx.font = '10px monospace'; ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'center';
   for (let x = X_MIN+1; x <= X_MAX; x++) {
-    if (x !== 0 && x % 2 === 0) ctx.fillText(x, toCanvasX(x), toCanvasY(0)+14);
+    if (x !== 0) ctx.fillText(x, toCanvasX(x), toCanvasY(0)+13);
   }
   ctx.textAlign = 'right';
   for (let y = Y_MIN+1; y <= Y_MAX; y++) {
-    if (y !== 0 && y % 2 === 0) ctx.fillText(y, toCanvasX(0)-5, toCanvasY(y)+4);
+    if (y !== 0) ctx.fillText(y, toCanvasX(0)-4, toCanvasY(y)+4);
   }
-  ctx.fillText('0', toCanvasX(0)-5, toCanvasY(0)+14);
+  ctx.fillText('0', toCanvasX(0)-4, toCanvasY(0)+13);
 
   if (state === 'correct') {
     // 정답 직선 초록
