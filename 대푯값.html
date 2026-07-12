@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>대푯값 활동지</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── 표지 화면 ── */
+    #cover-screen {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 56px 48px 48px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    .subject-label {
+      display: inline-block;
+      background: #4f7ef7;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    #cover-screen h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    #cover-screen .subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 40px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #eee;
+      margin-bottom: 36px;
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #dde3f0;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+      color: #1a1a2e;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #4f7ef7;
+    }
+
+    .input-group input::placeholder {
+      color: #bbb;
+    }
+
+    .error-msg {
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .start-btn {
+      width: 100%;
+      padding: 14px;
+      background: #4f7ef7;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .start-btn:hover {
+      background: #3a6ae0;
+    }
+
+    .start-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ── 활동지 화면 ── */
+    #worksheet-screen {
+      display: none;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 48px;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .ws-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #4f7ef7;
+    }
+
+    .ws-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1a1a2e;
+    }
+
+    .ws-header .student-info {
+      text-align: right;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.8;
+    }
+
+    .ws-header .student-info strong {
+      color: #1a1a2e;
+    }
+
+    .coming-soon {
+      text-align: center;
+      padding: 60px 0;
+      color: #aaa;
+      font-size: 15px;
+    }
+
+    .coming-soon .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    /* ── 진행 상황 바 ── */
+    .progress-wrap {
+      position: sticky;
+      top: 0;
+      background: white;
+      margin: -48px -48px 32px -48px;
+      padding: 24px 48px 16px;
+      border-radius: 16px 16px 0 0;
+      z-index: 10;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #888;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #e8ecf7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4f7ef7, #7aa2ff);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    /* ── 페이지 공통 ── */
+    .page {
+      display: none;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+    }
+
+    .page-desc {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .question-text {
+      margin-top: 28px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .answer-textarea {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px 16px;
+      border: 1.5px solid #dde3f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .answer-textarea:focus {
+      border-color: #4f7ef7;
+    }
+
+    .submit-btn {
+      margin-top: 14px;
+      padding: 10px 28px;
+      background: #4f7ef7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: #3a6ae0;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      min-height: 20px;
+    }
+
+    .feedback.correct { color: #2ecc71; }
+    .feedback.incorrect { color: #e74c3c; }
+
+    .next-btn {
+      display: none;
+      margin-top: 20px;
+      padding: 12px 32px;
+      background: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .next-btn:hover {
+      background: #27ae60;
+    }
+
+    /* ── 페이지 1: 점수 자료 ── */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .score-card {
+      background: #f7f9ff;
+      border: 1px solid #dde3f0;
+      border-radius: 10px;
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .score-subject {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .score-value {
+      font-size: 19px;
+      font-weight: 800;
+      color: #1a1a2e;
+    }
+
+    /* ── 페이지 2: 평균 정의 ── */
+    .lead-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .body-text {
+      font-size: 15px;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .fill-blank-text {
+      font-size: 21px;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 2;
+      margin-bottom: 24px;
+    }
+
+    .inline-input {
+      display: inline-block;
+      width: 130px;
+      padding: 4px 8px;
+      border: none;
+      border-bottom: 2px solid #4f7ef7;
+      text-align: center;
+      font-size: 19px;
+      font-weight: 700;
+      font-family: inherit;
+      color: #4f7ef7;
+      outline: none;
+      background: transparent;
+      margin: 0 4px;
+    }
+
+    /* ── 병합 애니메이션 (여러 페이지에서 재사용) ── */
+    .merge-stage {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      background: linear-gradient(180deg, #f7f9ff, #eef2ff);
+      border-radius: 14px;
+      margin: 24px 0 20px;
+      overflow: hidden;
+    }
+
+    .merge-bubble {
+      position: absolute;
+      transform: translate(-50%, -50%) rotate(0deg) scale(1);
+      transition: left 1s cubic-bezier(.34,1.1,.4,1),
+                  top 1s cubic-bezier(.34,1.1,.4,1),
+                  opacity 0.9s ease,
+                  filter 0.9s ease,
+                  transform 1s cubic-bezier(.34,1.1,.4,1);
+      transition-delay: var(--delay, 0ms);
+      background: white;
+      border: 2px solid #4f7ef7;
+      border-radius: 50%;
+      width: 58px;
+      height: 58px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      z-index: 2;
+      padding: 4px;
+    }
+
+    .merge-bubble .mb-subject {
+      font-size: 10px;
+      color: #888;
+    }
+
+    .merge-bubble .mb-score {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1a1a2e;
+      text-align: center;
+      line-height: 1.15;
+      word-break: keep-all;
+    }
+
+    /* 평균으로 뭉쳐질 때: 개별 자료는 양옆으로 밀려나며 흐릿해짐 */
+    .merge-bubble.pushed {
+      left: var(--tx);
+      top: var(--ty);
+      opacity: 0.32;
+      filter: blur(2.5px);
+      transform: translate(-50%, -50%) scale(0.7) rotate(var(--rot));
+    }
+
+    /* 하나씩 순서대로 나타나는 자료 (등장 전 상태) */
+    .merge-bubble.pending {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.3);
+    }
+
+    .avg-bubble {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 4px solid #4f7ef7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(79,126,247,0.3), 0 0 0 8px rgba(79,126,247,0.08);
+      transition: transform 0.9s cubic-bezier(.34,1.56,.64,1), opacity 0.5s ease;
+      z-index: 3;
+    }
+
+    .avg-bubble.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .avg-bubble .avg-number {
+      font-size: 40px;
+      font-weight: 900;
+      color: #1a1a2e;
+      line-height: 1;
+    }
+
+    .avg-bubble .avg-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4f7ef7;
+      margin-top: 4px;
+    }
+
+    .caption-text, .reveal-text {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #555;
+      margin-top: 8px;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .reveal-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-top: 16px;
+    }
+
+    /* ── 암호 입력 (다음 페이지 이동 통제) ── */
+    .password-gate {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .password-input {
+      padding: 10px 14px;
+      border: 1.5px solid #dde3f0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      width: 180px;
+      transition: border-color 0.2s;
+    }
+
+    .password-input:focus {
+      border-color: #4f7ef7;
+    }
+
+    .next-btn.static {
+      display: inline-block;
+    }
+
+    /* ── 용돈 자료 페이지 ── */
+    .won-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .won-input {
+      width: 160px;
+      padding: 10px 14px;
+      border: 1.5px solid #dde3f0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .won-input:focus {
+      border-color: #4f7ef7;
+    }
+
+    .won-suffix {
+      font-size: 15px;
+      font-weight: 700;
+      color: #555;
+    }
+
+    /* ── 중앙값 페이지 ── */
+    .info-box {
+      background: #f0f4ff;
+      border-left: 4px solid #4f7ef7;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+
+    .info-box .info-label {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 800;
+      color: #4f7ef7;
+      margin-bottom: 6px;
+    }
+
+    .info-box p {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+      line-height: 1.6;
+    }
+
+    .median-example {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0 16px;
+      flex-wrap: wrap;
+    }
+
+    .median-chip {
+      padding: 10px 16px;
+      background: #f7f9ff;
+      border: 1.5px solid #dde3f0;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #555;
+      transition: all 0.3s ease;
+    }
+
+    .median-chip.highlight {
+      background: #4f7ef7;
+      color: white;
+      border-color: #4f7ef7;
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(79,126,247,0.3);
+    }
+
+    .short-answer-input {
+      display: block;
+      width: 140px;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border: 1.5px solid #dde3f0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .short-answer-input:focus {
+      border-color: #4f7ef7;
+    }
+
+    /* ── 예제 문제 박스 (가독성 있게 구분) ── */
+    .practice-box {
+      background: #f7f9ff;
+      border: 1.5px solid #dde3f0;
+      border-radius: 12px;
+      padding: 22px 26px;
+      margin-top: 22px;
+    }
+
+    .practice-label {
+      display: inline-block;
+      background: #4f7ef7;
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    .practice-question {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* ── 힌트(모르겠어요) 버튼 & 풀이 박스 ── */
+    .hint-btn {
+      padding: 10px 24px;
+      background: transparent;
+      color: #4f7ef7;
+      border: 1.5px solid #4f7ef7;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .hint-btn:hover {
+      background: #eef2ff;
+    }
+
+    .hint-box {
+      background: #fff8e6;
+      border-left: 4px solid #f5a623;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      font-size: 14px;
+      color: #6b5416;
+      line-height: 1.8;
+    }
+
+    .hint-box strong {
+      color: #1a1a2e;
+    }
+
+    /* ── 선택 이유 비교표 ── */
+    .reason-table-wrap {
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1.5px solid #dde3f0;
+      border-radius: 12px;
+    }
+
+    .reason-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .reason-table th {
+      background: #4f7ef7;
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .reason-table td {
+      padding: 14px 16px;
+      border-top: 1px solid #eee;
+      line-height: 1.7;
+      vertical-align: top;
+      color: #333;
+    }
+
+    .reason-table tr:nth-child(even) td {
+      background: #f7f9ff;
+    }
+
+    .reason-table td:first-child {
+      font-weight: 800;
+      color: #4f7ef7;
+      white-space: nowrap;
+    }
+
+    .reason-table ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .reason-table li + li {
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 표지 화면 -->
+  <div id="cover-screen">
+    <span class="subject-label">중학교 3학년 · 수학</span>
+    <h1>대푯값</h1>
+    <p class="subtitle">평균 · 중앙값 · 최빈값</p>
+    <hr class="divider">
+
+    <div class="input-group">
+      <label for="student-id">학번</label>
+      <input type="text" id="student-id" placeholder="예) 30712" maxlength="10">
+      <p class="error-msg" id="id-error">학번을 입력해 주세요.</p>
+    </div>
+
+    <div class="input-group">
+      <label for="student-name">이름</label>
+      <input type="text" id="student-name" placeholder="이름을 입력하세요" maxlength="10">
+      <p class="error-msg" id="name-error">이름을 입력해 주세요.</p>
+    </div>
+
+    <button class="start-btn" onclick="startWorksheet()">시작하기 →</button>
+  </div>
+
+  <!-- 활동지 화면 -->
+  <div id="worksheet-screen">
+    <div class="progress-wrap">
+      <div class="progress-labels">
+        <span>진행 상황</span>
+        <span id="progress-text">1 / 12</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="ws-header">
+      <h2>대푯값 활동지</h2>
+      <div class="student-info">
+        <div>학번 <strong id="display-id"></strong></div>
+        <div>이름 <strong id="display-name"></strong></div>
+      </div>
+    </div>
+
+    <!-- 페이지 1: 점수 자료 제시 -->
+    <div class="page" id="page-1" style="display:block;">
+      <p class="page-desc">지훈이는 2차 정기고사에서 다음과 같은 점수를 받았습니다.</p>
+      <div class="score-grid" id="score-grid"></div>
+
+      <p class="question-text">이 8과목의 점수 자료를 보고, 여러분은 이 자료로 무엇을 하고 싶나요?</p>
+      <textarea class="answer-textarea" id="q1-answer" placeholder="자유롭게 답변을 입력해 보세요"></textarea>
+      <br>
+      <button class="submit-btn" onclick="checkAnswer1()">제출하기</button>
+      <p class="feedback" id="q1-feedback"></p>
+      <button class="next-btn" id="next-btn-1" onclick="goToPage(2)">다음 →</button>
+    </div>
+
+    <!-- 페이지 2: 평균의 정의, 대푯값 용어 도입 -->
+    <div class="page" id="page-2">
+      <p class="lead-text">여러분은 여러분의 점수 자료를 대표하는 값으로 <strong>평균</strong>을 선택하셨습니다.</p>
+      <p class="body-text">평균은 다양한 점수 자료들을 요약하여, 두 개 이상의 자료를 비교하기 위해 각 자료의 전체적인 특징을 대표할 수 있는 하나의 수로 나타낸 값이다.</p>
+      <p class="fill-blank-text">이와 같이 자료의 전체적인 특징을 대표적인 하나의 수로 나타낸 값을 <input type="text" class="inline-input" id="q2-answer" placeholder="　　" onkeydown="if(event.key==='Enter')checkAnswer2()"> 이라고 한다.</p>
+      <button class="submit-btn" onclick="checkAnswer2()">제출하기</button>
+      <p class="feedback" id="q2-feedback"></p>
+      <button class="next-btn" id="next-btn-2" onclick="goToPage(3)">다음 →</button>
+    </div>
+
+    <!-- 페이지 3: 평균이 만들어지는 과정 애니메이션 -->
+    <div class="page" id="page-3">
+      <p class="page-desc">여덟 과목의 점수가 하나의 값으로 뭉쳐집니다.</p>
+      <div class="merge-stage" id="merge-stage"></div>
+      <p class="caption-text" id="merge-caption">평균은 대푯값 중에서 여러분들이 제일 많이 알고 사용하는 값이에요.</p>
+
+      <div class="password-gate">
+        <input type="password" id="pw-page-3" class="password-input" placeholder="암호 (선생님 안내 시 입력)">
+        <button class="next-btn static" id="next-btn-3" onclick="tryProceed(3, 4, 'pw-page-3')">다음 →</button>
+      </div>
+      <p class="feedback incorrect" id="pw-error-3" style="display:none;">암호가 올바르지 않습니다. 다시 확인해 주세요.</p>
+    </div>
+
+    <!-- 페이지 4: 용돈 자료로 평균의 한계 체감 -->
+    <div class="page" id="page-4">
+      <p class="question-text">여러분은 하루에 용돈을 얼마 정도 쓰나요?</p>
+      <div class="won-input-row">
+        <input type="number" id="q4-my-allowance" class="won-input" placeholder="예) 5000" min="0">
+        <span class="won-suffix">원</span>
+      </div>
+      <p class="feedback incorrect" id="q4-input-error" style="display:none;">용돈을 숫자로 입력해 주세요.</p>
+      <button class="submit-btn" id="q4-submit-btn" onclick="submitAllowance()">제출하기</button>
+
+      <div id="allowance-result" style="display:none;">
+        <p class="page-desc" style="margin-top:28px;">여러분의 답변과 함께, 다른 9명의 하루 용돈도 공개할게요!</p>
+        <div class="merge-stage" id="allowance-stage"></div>
+        <p class="reveal-text" id="allowance-reveal"></p>
+
+        <p class="question-text" style="margin-top:32px;">집단을 대표하는 값으로 평균을 구했을 때, 여러분의 생각은 어떤가요?</p>
+        <textarea class="answer-textarea" id="q4-opinion" placeholder="자유롭게 답변을 입력해 보세요"></textarea>
+        <br>
+        <button class="submit-btn" onclick="checkAnswer4()">제출하기</button>
+        <p class="feedback" id="q4-feedback"></p>
+        <button class="next-btn" id="next-btn-4" onclick="goToPage(5)">다음 →</button>
+      </div>
+    </div>
+
+    <!-- 페이지 5: 평균의 한계와 중앙값 도입 -->
+    <div class="page" id="page-5">
+      <p class="lead-text">평균은 극단적인 값의 영향을 많이 받아 자료 전체를 대표하지 못할 수도 있어요.</p>
+      <p class="body-text">그래서 평균 말고도 자료를 대표할 수 있는 다른 값들을 알아볼까요?</p>
+
+      <div class="info-box">
+        <span class="info-label">중앙값</span>
+        <p>변량을 작은 값부터 크기순으로 나열하였을 때, 한가운데 있는 값</p>
+      </div>
+
+      <p class="page-desc" style="margin-top:24px;">예시로 함께 확인해봐요. 5명의 학생이 잰 100m 달리기 기록(초)입니다.</p>
+      <div class="median-example" id="median-demo"></div>
+      <p class="body-text" id="median-demo-explain"></p>
+
+      <div class="practice-box">
+        <span class="practice-label">예제 1</span>
+        <p class="practice-question">다음은 7명의 학생의 팔굽혀펴기 기록입니다: 12, 8, 15, 10, 9, 20, 11 (회). 중앙값을 구하시오.</p>
+        <input type="number" class="short-answer-input" id="median-q1">
+        <button class="submit-btn" onclick="checkMedian1()">제출하기</button>
+        <p class="feedback" id="median-q1-feedback"></p>
+      </div>
+
+      <div class="practice-box">
+        <span class="practice-label">예제 2</span>
+        <p class="practice-question">다음은 9명의 학생의 하루 독서 시간입니다: 30, 45, 20, 60, 25, 50, 35, 40, 55 (분). 중앙값을 구하시오.</p>
+        <input type="number" class="short-answer-input" id="median-q2">
+        <button class="submit-btn" onclick="checkMedian2()">제출하기</button>
+        <p class="feedback" id="median-q2-feedback"></p>
+      </div>
+
+      <button class="next-btn static" id="next-btn-5" style="margin-top:28px;" onclick="goToPage(6)">다음 →</button>
+    </div>
+
+    <!-- 페이지 6: 자료의 개수가 짝수인 경우의 중앙값 -->
+    <div class="page" id="page-6">
+      <p class="lead-text">이번에는 자료의 개수가 짝수인 경우를 살펴볼까요?</p>
+
+      <div class="practice-box">
+        <p class="practice-question">다음은 8명의 학생의 수학 쪽지시험 점수입니다: 7, 9, 5, 10, 6, 8, 9, 4 (점). 중앙값을 구하시오.</p>
+        <input type="number" step="0.1" class="short-answer-input" id="median-q3">
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+          <button class="submit-btn" onclick="checkMedian3()">제출하기</button>
+          <button class="hint-btn" onclick="showMedianHint()">잘 모르겠어요</button>
+        </div>
+        <p class="feedback" id="median-q3-feedback"></p>
+        <div class="hint-box" id="median-q3-hint" style="display:none;">
+          <p>크기순으로 나열하면 4, 5, 6, 7, 8, 9, 9, 10 입니다.</p>
+          <p>자료가 8개로 짝수 개이므로 한가운데 있는 값이 없습니다. 이럴 때는 중간에 있는 두 값, 즉 4번째 값과 5번째 값의 평균을 중앙값으로 합니다.</p>
+          <p><strong>중앙값 = (7 + 8) ÷ 2 = 7.5</strong></p>
+        </div>
+      </div>
+
+      <div class="password-gate" style="margin-top:28px;">
+        <input type="password" id="pw-page-6" class="password-input" placeholder="암호 (선생님 안내 시 입력)">
+        <button class="next-btn static" id="next-btn-6" onclick="tryProceed(6, 7, 'pw-page-6')">다음 →</button>
+      </div>
+      <p class="feedback incorrect" id="pw-error-6" style="display:none;">암호가 올바르지 않습니다. 다시 확인해 주세요.</p>
+    </div>
+
+    <!-- 페이지 7: 신발 사이즈 자료로 평균과 중앙값 비교 -->
+    <div class="page" id="page-7">
+      <p class="page-desc">어느 신발 가게에서 하루 동안 팔린 신발 10켤레의 사이즈(mm)입니다.</p>
+      <div class="median-example" id="shoe-data-chips"></div>
+
+      <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap;">
+        <button class="submit-btn" onclick="revealShoeAverage()">평균 확인하기</button>
+        <button class="submit-btn" onclick="revealShoeMedian()">중앙값 확인하기</button>
+      </div>
+
+      <div id="shoe-avg-result" style="display:none;">
+        <p class="page-desc" style="margin-top:20px;">신발 사이즈 10개가 평균으로 뭉쳐집니다.</p>
+        <div class="merge-stage" id="shoe-avg-stage"></div>
+      </div>
+
+      <div id="shoe-median-result" style="display:none; margin-top:20px;">
+        <p class="page-desc">크기순으로 나열해서 중앙값을 확인해봐요.</p>
+        <div class="median-example" id="shoe-median-chips"></div>
+        <p class="body-text" id="shoe-median-explain"></p>
+      </div>
+
+      <p class="question-text" style="margin-top:32px;">평균과 중앙값을 비교해 보니 어떤가요? 여러분의 생각을 자유롭게 적어보세요.</p>
+      <textarea class="answer-textarea" id="shoe-opinion" placeholder="자유롭게 답변을 입력해 보세요"></textarea>
+      <br>
+      <button class="submit-btn" onclick="checkShoeOpinion()">제출하기</button>
+      <p class="feedback" id="shoe-opinion-feedback"></p>
+      <button class="next-btn" id="next-btn-7" onclick="goToPage(8)">다음 →</button>
+    </div>
+
+    <!-- 페이지 8: 최빈값 -->
+    <div class="page" id="page-8">
+      <div class="info-box">
+        <span class="info-label">최빈값</span>
+        <p>자료에서 가장 많이 나타나는 값</p>
+      </div>
+
+      <p class="page-desc" style="margin-top:24px;">예시로 함께 확인해봐요. 다음은 학생 7명의 신발 사이즈(mm)입니다.</p>
+      <div class="median-example" id="mode-demo"></div>
+      <p class="body-text" id="mode-demo-explain"></p>
+
+      <div class="practice-box">
+        <span class="practice-label">예제 1</span>
+        <p class="practice-question">다음은 학생 8명이 이번 달에 읽은 책의 수입니다: 2, 3, 2, 4, 2, 5, 3, 2 (권). 최빈값을 구하시오.</p>
+        <input type="number" class="short-answer-input" id="mode-q1">
+        <button class="submit-btn" onclick="checkMode1()">제출하기</button>
+        <p class="feedback" id="mode-q1-feedback"></p>
+      </div>
+
+      <div class="practice-box">
+        <span class="practice-label">예제 2</span>
+        <p class="practice-question">다음은 어느 신발 가게에서 하루 동안 팔린 신발 사이즈입니다: 260, 250, 265, 250, 270, 260, 250, 255 (mm). 최빈값을 구하시오.</p>
+        <input type="number" class="short-answer-input" id="mode-q2">
+        <button class="submit-btn" onclick="checkMode2()">제출하기</button>
+        <p class="feedback" id="mode-q2-feedback"></p>
+      </div>
+
+      <button class="next-btn static" id="next-btn-8" style="margin-top:28px;" onclick="goToPage(9)">다음 →</button>
+    </div>
+
+    <!-- 페이지 9: 최빈값이 여러 개인 경우 -->
+    <div class="page" id="page-9">
+      <p class="page-desc">다음은 학생 8명이 한 달 동안 봉사활동에 참여한 횟수입니다: 4, 6, 4, 8, 6, 2, 4, 6 (회)</p>
+      <div class="median-example" id="mode-multi-chips"></div>
+
+      <div class="practice-box">
+        <p class="practice-question">위 자료의 최빈값을 모두 구하시오. (여러 개이면 쉼표로 구분해서 입력하세요)</p>
+        <input type="text" class="short-answer-input" id="mode-q3" placeholder="예) 4, 6" style="width:200px;">
+        <button class="submit-btn" onclick="checkMode3()">제출하기</button>
+        <p class="feedback" id="mode-q3-feedback"></p>
+      </div>
+
+      <div class="info-box" style="margin-top:28px;">
+        <span class="info-label">기억하기</span>
+        <p>최빈값은 하나가 아니라 여러 개일 수도 있습니다. 위 자료처럼 두 개 이상의 값이 똑같이 가장 많이 나타나면, 그 값 모두가 최빈값이 됩니다.</p>
+      </div>
+
+      <button class="next-btn static" id="next-btn-9" style="margin-top:24px;" onclick="goToPage(10)">다음 →</button>
+    </div>
+
+    <!-- 페이지 10: 20개 자료로 세 대푯값 모두 구해보기 -->
+    <div class="page" id="page-10">
+      <p class="lead-text">우리 반 학생 20명이 한 학기 동안 읽은 책의 수를 조사했습니다.</p>
+      <div class="median-example" id="reading-data-chips"></div>
+
+      <div class="practice-box">
+        <span class="practice-label">평균</span>
+        <p class="practice-question">평균을 구하시오.</p>
+        <input type="number" step="0.01" class="short-answer-input" id="reading-mean-answer">
+        <button class="submit-btn" onclick="checkReadingMean()">제출하기</button>
+        <p class="feedback" id="reading-mean-feedback"></p>
+      </div>
+
+      <div class="practice-box">
+        <span class="practice-label">중앙값</span>
+        <p class="practice-question">중앙값을 구하시오.</p>
+        <input type="number" step="0.1" class="short-answer-input" id="reading-median-answer">
+        <button class="submit-btn" onclick="checkReadingMedian()">제출하기</button>
+        <p class="feedback" id="reading-median-feedback"></p>
+      </div>
+
+      <div class="practice-box">
+        <span class="practice-label">최빈값</span>
+        <p class="practice-question">최빈값을 구하시오.</p>
+        <input type="number" class="short-answer-input" id="reading-mode-answer">
+        <button class="submit-btn" onclick="checkReadingMode()">제출하기</button>
+        <p class="feedback" id="reading-mode-feedback"></p>
+      </div>
+
+      <p class="question-text" style="margin-top:32px;">세 대푯값 중 이 자료를 대표하는 값으로 어떤 것을 선택하고 싶나요? 그 이유는 무엇인가요?</p>
+      <textarea class="answer-textarea" id="final-opinion" placeholder="예) 저는 ___을 선택하겠습니다. 왜냐하면 ..."></textarea>
+      <br>
+      <button class="submit-btn" onclick="checkFinalReasoning()">제출하기</button>
+      <p class="feedback" id="final-feedback"></p>
+      <button class="next-btn" id="next-btn-10" onclick="goToPage(11)">다음 →</button>
+    </div>
+
+    <!-- 페이지 11: 선택 이유 예시 살펴보고 정리하기 -->
+    <div class="page" id="page-11">
+      <p class="lead-text">친구들은 저마다 다른 대푯값을 선택했어요. 아래 표에서 그 이유를 살펴볼까요?</p>
+
+      <div class="reason-table-wrap">
+        <table class="reason-table">
+          <thead>
+            <tr><th>선택한 대푯값</th><th>선택한 이유 (예시 답안)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>평균</td>
+              <td>
+                <ul>
+                  <li>20명의 자료를 모두 더해서 나눈 값이라, 반 전체의 독서량을 가장 골고루 반영하기 때문입니다.</li>
+                  <li>모든 학생의 값을 빠짐없이 계산에 사용하니까, 일부만 보는 것보다 전체 상황을 더 잘 나타낸다고 생각합니다.</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>중앙값</td>
+              <td>
+                <ul>
+                  <li>8권처럼 유독 많이 읽은 친구 때문에 평균이 실제보다 높아 보일 수 있는데, 중앙값은 이런 극단적인 값에 영향을 덜 받아서 더 정확하다고 생각합니다.</li>
+                  <li>자료를 순서대로 나열했을 때 가운데 값이라서, 우리 반의 '보통' 학생이 어느 정도 읽는지 더 잘 보여준다고 생각합니다.</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <td>최빈값</td>
+              <td>
+                <ul>
+                  <li>가장 많은 학생이 3권을 읽었으니, 우리 반에서 가장 흔한 독서량이 몇 권인지 알고 싶다면 최빈값이 더 적절하다고 생각합니다.</li>
+                  <li>실제로 존재하는 값이면서 가장 많은 학생들의 선택을 보여주기 때문에, 반 전체 분위기를 파악하기에 좋습니다.</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="question-text" style="margin-top:24px;">이제 표를 참고해서, 자신의 생각을 정리해서 다시 작성해볼까요?</p>
+      <textarea class="answer-textarea" id="reason-summary-opinion" placeholder="자유롭게 답변을 입력해 보세요"></textarea>
+      <br>
+      <button class="submit-btn" onclick="checkReasonSummary()">제출하기</button>
+      <p class="feedback" id="reason-summary-feedback"></p>
+      <button class="next-btn" id="next-btn-11" onclick="goToPage(12)">다음 →</button>
+    </div>
+
+    <!-- 페이지 12: 오늘 배운 내용 정리 & 제출 -->
+    <div class="page" id="page-12">
+      <p class="lead-text">오늘 배운 내용을 정리해볼까요?</p>
+
+      <div class="info-box">
+        <span class="info-label">대푯값</span>
+        <p>자료 전체의 특징을 대표하는 하나의 수</p>
+      </div>
+
+      <div class="info-box">
+        <span class="info-label">평균</span>
+        <p>자료의 총합을 자료의 개수로 나눈 값입니다. 모든 자료를 반영하지만, 극단적인 값의 영향을 많이 받습니다.</p>
+      </div>
+
+      <div class="info-box">
+        <span class="info-label">중앙값</span>
+        <p>자료를 크기순으로 나열했을 때 한가운데 있는 값입니다. (자료가 짝수 개이면 가운데 두 값의 평균) 극단적인 값의 영향을 덜 받습니다.</p>
+      </div>
+
+      <div class="info-box">
+        <span class="info-label">최빈값</span>
+        <p>자료에서 가장 많이 나타나는 값입니다. 두 개 이상일 수도 있습니다.</p>
+      </div>
+
+      <p class="page-desc" style="margin-top:24px;">수고 많았어요! 아래 버튼을 눌러 오늘 작성한 답변을 선생님께 제출해 주세요.</p>
+      <button class="submit-btn" id="submit-final-btn" onclick="submitAllAnswers()">답변 제출하기</button>
+      <p class="feedback" id="submit-status"></p>
+    </div>
+  </div>
+
+  <script>
+    function startWorksheet() {
+      const id = document.getElementById('student-id').value.trim();
+      const name = document.getElementById('student-name').value.trim();
+      const idError = document.getElementById('id-error');
+      const nameError = document.getElementById('name-error');
+
+      let valid = true;
+
+      if (!id) {
+        idError.style.display = 'block';
+        valid = false;
+      } else {
+        idError.style.display = 'none';
+      }
+
+      if (!name) {
+        nameError.style.display = 'block';
+        valid = false;
+      } else {
+        nameError.style.display = 'none';
+      }
+
+      if (!valid) return;
+
+      document.getElementById('display-id').textContent = id;
+      document.getElementById('display-name').textContent = name;
+
+      document.getElementById('cover-screen').style.display = 'none';
+      document.getElementById('worksheet-screen').style.display = 'block';
+
+      renderScores();
+      goToPage(1);
+    }
+
+    // 엔터키로도 시작 가능 (표지 화면에서만 동작)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.getElementById('cover-screen').style.display !== 'none') {
+        startWorksheet();
+      }
+    });
+
+    /* ── 점수 자료 ── */
+    const scores = [
+      { subject: '국어', score: 88 },
+      { subject: '수학', score: 76 },
+      { subject: '영어', score: 92 },
+      { subject: '사회', score: 80 },
+      { subject: '과학', score: 84 },
+      { subject: '역사', score: 78 },
+      { subject: '도덕', score: 90 },
+      { subject: '체육', score: 84 }
+    ];
+
+    function renderScores() {
+      const grid = document.getElementById('score-grid');
+      grid.innerHTML = scores.map(s =>
+        `<div class="score-card">
+          <span class="score-subject">${s.subject}</span>
+          <span class="score-value">${s.score}점</span>
+        </div>`
+      ).join('');
+    }
+
+    /* ── 페이지 이동 & 진행 상황 바 ── */
+    function goToPage(n) {
+      document.querySelectorAll('#worksheet-screen .page').forEach(p => p.style.display = 'none');
+      document.getElementById('page-' + n).style.display = 'block';
+
+      const total = document.querySelectorAll('#worksheet-screen .page').length;
+      document.getElementById('progress-fill').style.width = (n / total * 100) + '%';
+      document.getElementById('progress-text').textContent = n + ' / ' + total;
+
+      if (n === 3) initMergeStage();
+      if (n === 5) renderMedianDemo();
+      if (n === 7) renderShoeChips();
+      if (n === 8) renderModeDemo();
+      if (n === 9) renderModeMultiChips();
+      if (n === 10) renderReadingChips();
+    }
+
+    /* ── 다음 페이지 암호 통제 ──
+       값이 null이면 암호 없이 통과, 문자열을 넣으면 그 암호를 입력해야 이동 가능 */
+    const PAGE_PASSWORDS = {
+      3: null,
+      6: null
+    };
+
+    function tryProceed(fromPage, toPage, inputId) {
+      const required = PAGE_PASSWORDS[fromPage];
+      const errorEl = document.getElementById('pw-error-' + fromPage);
+
+      if (!required) {
+        if (errorEl) errorEl.style.display = 'none';
+        goToPage(toPage);
+        return;
+      }
+
+      const entered = document.getElementById(inputId).value.trim();
+      if (entered === required) {
+        errorEl.style.display = 'none';
+        goToPage(toPage);
+      } else {
+        errorEl.style.display = 'block';
+      }
+    }
+
+    /* ── 답 채점 ── */
+    function checkAnswer1() {
+      const val = document.getElementById('q1-answer').value.trim();
+      const feedback = document.getElementById('q1-feedback');
+
+      if (val.includes('평균')) {
+        feedback.textContent = '정답입니다! 여러 점수를 "평균"으로 요약하고 싶으셨군요 👍';
+        feedback.className = 'feedback correct';
+        document.getElementById('next-btn-1').style.display = 'inline-block';
+      } else {
+        feedback.textContent = '다시 한 번 생각해볼까요? (힌트: 여러 개의 점수를 하나의 수로 요약하는 방법이 있어요)';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    function checkAnswer2() {
+      const val = document.getElementById('q2-answer').value.trim();
+      const feedback = document.getElementById('q2-feedback');
+
+      if (val === '대푯값') {
+        feedback.textContent = '정답입니다! 이러한 값을 "대푯값"이라고 합니다.';
+        feedback.className = 'feedback correct';
+        document.getElementById('next-btn-2').style.display = 'inline-block';
+      } else {
+        feedback.textContent = '다시 입력해 볼까요?';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 여러 페이지에서 재사용하는 병합 애니메이션 ──
+       data: [{ label, value, display? }]
+       options.formatter(value) : 말풍선에 표시할 문자열 가공
+       options.avgFormatter(avgValue) : 가운데 평균 숫자 표시 가공
+       options.sizeFn(value) : 값의 크기에 따라 말풍선(원)을 얼마나 키울지 배율(기본 1)
+       options.sequential : true면 자료를 하나씩 순서대로 보여준 뒤 병합
+       options.stepDelay : 순차 등장 간격(ms)
+       options.onSettled(avgValue) : 병합이 끝난 시점에 호출되는 콜백
+       반환값: 계산된 평균(raw 숫자) */
+    function renderMergeStage(stageId, data, options = {}) {
+      const formatter = options.formatter || (v => v);
+      const avgFormatter = options.avgFormatter || (v => Math.round(v).toLocaleString());
+      const sizeFn = options.sizeFn || (() => 1);
+      const sequential = !!options.sequential;
+      const stepDelay = options.stepDelay || 600;
+      const stage = document.getElementById(stageId);
+      const n = data.length;
+      const avgValue = data.reduce((sum, d) => sum + d.value, 0) / n;
+
+      const items = data.map((d, i) => {
+        const leftStart = (i + 1) * 100 / (n + 1);
+        const topStart = (i % 2 === 0) ? 26 : 70;
+        return { ...d, leftStart, topStart, side: leftStart < 50 ? 'left' : 'right' };
+      });
+
+      const leftItems = items.filter(it => it.side === 'left');
+      const rightItems = items.filter(it => it.side === 'right');
+      const assignTargets = (group, edgeLeft) => {
+        group.forEach((it, idx) => {
+          it.targetLeft = edgeLeft;
+          it.targetTop = group.length > 1 ? 10 + idx * (80 / (group.length - 1)) : 50;
+        });
+      };
+      assignTargets(leftItems, 6);
+      assignTargets(rightItems, 94);
+
+      stage.innerHTML = items.map((it, i) => {
+        const rot = (Math.random() * 24 - 12).toFixed(1);
+        const pendingClass = sequential ? ' pending' : '';
+        const scale = sizeFn(it.value);
+        const label = String(formatter(it.value));
+        const size = Math.round(Math.min(150, Math.max(40, 58 * scale)));
+        let fontSize = Math.round(Math.min(22, Math.max(10, 12 * Math.sqrt(scale))));
+        if (label.length > 6) fontSize = Math.max(9, Math.round(fontSize * 6 / label.length));
+        return `<div class="merge-bubble${pendingClass}" style="left:${it.leftStart}%; top:${it.topStart}%; --tx:${it.targetLeft}%; --ty:${it.targetTop}%; --rot:${rot}deg; width:${size}px; height:${size}px;">
+          <span class="mb-subject">${it.label}</span>
+          <span class="mb-score" style="font-size:${fontSize}px;">${label}</span>
+        </div>`;
+      }).join('') + `<div class="avg-bubble" id="${stageId}-avg">
+        <span class="avg-number">${avgFormatter(avgValue)}</span>
+        <span class="avg-label">평균</span>
+      </div>`;
+
+      const triggerMerge = () => {
+        stage.querySelectorAll('.merge-bubble').forEach(b => b.classList.add('pushed'));
+        document.getElementById(stageId + '-avg').classList.add('show');
+        if (options.onSettled) setTimeout(() => options.onSettled(avgValue), 500);
+      };
+
+      if (sequential) {
+        const bubbles = stage.querySelectorAll('.merge-bubble');
+        bubbles.forEach((b, i) => {
+          setTimeout(() => b.classList.remove('pending'), 400 + i * stepDelay);
+        });
+        setTimeout(triggerMerge, 400 + bubbles.length * stepDelay + 700);
+      } else {
+        requestAnimationFrame(() => setTimeout(triggerMerge, 900));
+      }
+
+      return avgValue;
+    }
+
+    /* ── 페이지 3: 8과목 점수가 평균으로 뭉쳐지는 애니메이션 ── */
+    function initMergeStage() {
+      document.getElementById('merge-caption').style.opacity = 0;
+      renderMergeStage('merge-stage', scores.map(s => ({ label: s.subject, value: s.score })), {
+        onSettled: () => {
+          document.getElementById('merge-caption').style.opacity = 1;
+        }
+      });
+    }
+
+    /* ── 페이지 4: 하루 용돈 자료 ── */
+    const otherAllowances = [3000, 4000, 5000, 2000000, 3500, 4500, 2500, 6000, 4000];
+
+    function formatMoney(v) {
+      return v.toLocaleString() + '원';
+    }
+
+    /* 금액이 클수록 말풍선(원)도 커 보이도록 로그 스케일로 배율 계산 */
+    function allowanceBubbleScale(v) {
+      const logV = Math.log10(Math.max(v, 500));
+      const logMin = Math.log10(500);
+      const logMax = Math.log10(2000000);
+      const t = Math.min(1, Math.max(0, (logV - logMin) / (logMax - logMin)));
+      return 0.8 + t * 1.6;
+    }
+
+    function submitAllowance() {
+      const input = document.getElementById('q4-my-allowance');
+      const errorEl = document.getElementById('q4-input-error');
+      const my = parseFloat(input.value);
+
+      if (isNaN(my) || my < 0) {
+        errorEl.style.display = 'block';
+        return;
+      }
+      errorEl.style.display = 'none';
+
+      const data = [{ label: '나', value: my }]
+        .concat(otherAllowances.map((v, i) => ({ label: '친구' + (i + 1), value: v })));
+
+      const revealEl = document.getElementById('allowance-reveal');
+      revealEl.style.opacity = 0;
+      revealEl.textContent = '';
+      document.getElementById('allowance-result').style.display = 'block';
+      document.getElementById('q4-submit-btn').disabled = true;
+
+      renderMergeStage('allowance-stage', data, {
+        formatter: formatMoney,
+        avgFormatter: v => Math.round(v).toLocaleString() + '원',
+        sizeFn: allowanceBubbleScale,
+        sequential: true,
+        stepDelay: 650,
+        onSettled: (avg) => {
+          revealEl.textContent = `여러분들은 하루에 ${Math.round(avg).toLocaleString()}원 정도 쓰는군요!`;
+          revealEl.style.opacity = 1;
+        }
+      });
+    }
+
+    function checkAnswer4() {
+      const val = document.getElementById('q4-opinion').value.trim();
+      const feedback = document.getElementById('q4-feedback');
+
+      if (val.length > 0) {
+        feedback.textContent = '답변이 제출되었습니다!';
+        feedback.className = 'feedback correct';
+        document.getElementById('next-btn-4').style.display = 'inline-block';
+      } else {
+        feedback.textContent = '생각을 자유롭게 적어주세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 페이지 5: 중앙값 예시 & 연습문제 ── */
+    function renderMedianDemo() {
+      const raw = [15.1, 13.2, 16.5, 14.0, 13.8];
+      const sorted = [...raw].sort((a, b) => a - b);
+      const medIdx = Math.floor(sorted.length / 2);
+
+      document.getElementById('median-demo').innerHTML = sorted.map((v, i) =>
+        `<span class="median-chip${i === medIdx ? ' highlight' : ''}">${v}</span>`
+      ).join('');
+
+      document.getElementById('median-demo-explain').textContent =
+        `크기순으로 나열하면 ${sorted.join(', ')} 이고, 한가운데(${medIdx + 1}번째) 있는 값은 ${sorted[medIdx]}이므로 중앙값은 ${sorted[medIdx]}입니다.`;
+    }
+
+    function checkMedian1() {
+      const val = parseFloat(document.getElementById('median-q1').value);
+      const feedback = document.getElementById('median-q1-feedback');
+
+      if (val === 11) {
+        feedback.textContent = '정답입니다! 크기순으로 나열하면 8, 9, 10, 11, 12, 15, 20 이고 한가운데 값은 11입니다.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 확인해볼까요? 먼저 크기순으로 나열해 보세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    function checkMedian2() {
+      const val = parseFloat(document.getElementById('median-q2').value);
+      const feedback = document.getElementById('median-q2-feedback');
+
+      if (val === 40) {
+        feedback.textContent = '정답입니다! 크기순으로 나열하면 20, 25, 30, 35, 40, 45, 50, 55, 60 이고 한가운데 값은 40입니다.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 확인해볼까요? 먼저 크기순으로 나열해 보세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 페이지 6: 자료가 짝수 개인 경우의 중앙값 ── */
+    function checkMedian3() {
+      const val = parseFloat(document.getElementById('median-q3').value);
+      const feedback = document.getElementById('median-q3-feedback');
+
+      if (val === 7.5) {
+        feedback.textContent = '정답입니다! 중앙값은 7.5입니다.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 확인해볼까요? 자료의 개수가 짝수라는 점에 주의하세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    function showMedianHint() {
+      document.getElementById('median-q3-hint').style.display = 'block';
+    }
+
+    /* ── 페이지 7: 신발 사이즈 자료 (평균 vs 중앙값) ── */
+    const shoeSizes = [250, 260, 255, 240, 265, 250, 245, 260, 255, 400];
+
+    function renderShoeChips() {
+      document.getElementById('shoe-data-chips').innerHTML =
+        shoeSizes.map(v => `<span class="median-chip">${v}</span>`).join('');
+    }
+
+    function revealShoeAverage() {
+      document.getElementById('shoe-avg-result').style.display = 'block';
+      renderMergeStage(
+        'shoe-avg-stage',
+        shoeSizes.map((v, i) => ({ label: '신발' + (i + 1), value: v })),
+        { avgFormatter: v => Math.round(v * 10) / 10 + 'mm' }
+      );
+    }
+
+    function revealShoeMedian() {
+      document.getElementById('shoe-median-result').style.display = 'block';
+      const sorted = [...shoeSizes].sort((a, b) => a - b);
+      const mid = sorted.length / 2;
+      const median = (sorted[mid - 1] + sorted[mid]) / 2;
+
+      document.getElementById('shoe-median-chips').innerHTML = sorted.map((v, i) =>
+        `<span class="median-chip${(i === mid - 1 || i === mid) ? ' highlight' : ''}">${v}</span>`
+      ).join('');
+
+      document.getElementById('shoe-median-explain').textContent =
+        `자료가 10개로 짝수 개이므로 가운데 두 값(${sorted[mid - 1]}, ${sorted[mid]})의 평균을 구하면 중앙값은 ${median}mm입니다.`;
+    }
+
+    function checkShoeOpinion() {
+      const val = document.getElementById('shoe-opinion').value.trim();
+      const feedback = document.getElementById('shoe-opinion-feedback');
+
+      if (val.length > 0) {
+        feedback.textContent = '답변이 제출되었습니다!';
+        feedback.className = 'feedback correct';
+        document.getElementById('next-btn-7').style.display = 'inline-block';
+      } else {
+        feedback.textContent = '생각을 자유롭게 적어주세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 페이지 8: 최빈값 ── */
+    const modeDemoData = [250, 255, 250, 260, 250, 255, 240];
+
+    function renderModeDemo() {
+      const counts = {};
+      modeDemoData.forEach(v => counts[v] = (counts[v] || 0) + 1);
+      const maxCount = Math.max(...Object.values(counts));
+      const modes = Object.keys(counts).filter(k => counts[k] === maxCount).map(Number);
+
+      document.getElementById('mode-demo').innerHTML = modeDemoData.map(v =>
+        `<span class="median-chip${modes.includes(v) ? ' highlight' : ''}">${v}</span>`
+      ).join('');
+
+      document.getElementById('mode-demo-explain').textContent =
+        `${modes[0]}이(가) ${maxCount}번으로 가장 많이 나타나므로 최빈값은 ${modes[0]}입니다.`;
+    }
+
+    function checkMode1() {
+      const val = parseFloat(document.getElementById('mode-q1').value);
+      const feedback = document.getElementById('mode-q1-feedback');
+
+      if (val === 2) {
+        feedback.textContent = '정답입니다! 2가 4번으로 가장 많이 나타나므로 최빈값은 2입니다.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 세어볼까요? 각 값이 몇 번씩 나오는지 확인해 보세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    function checkMode2() {
+      const val = parseFloat(document.getElementById('mode-q2').value);
+      const feedback = document.getElementById('mode-q2-feedback');
+
+      if (val === 250) {
+        feedback.textContent = '정답입니다! 250이 3번으로 가장 많이 나타나므로 최빈값은 250입니다.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 세어볼까요? 각 값이 몇 번씩 나오는지 확인해 보세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 페이지 9: 최빈값이 여러 개인 경우 ── */
+    const modeMultiData = [4, 6, 4, 8, 6, 2, 4, 6];
+
+    function renderModeMultiChips() {
+      document.getElementById('mode-multi-chips').innerHTML =
+        modeMultiData.map(v => `<span class="median-chip" data-value="${v}">${v}</span>`).join('');
+    }
+
+    function checkMode3() {
+      const raw = document.getElementById('mode-q3').value
+        .split(',')
+        .map(s => parseFloat(s.trim()))
+        .filter(v => !isNaN(v))
+        .sort((a, b) => a - b);
+
+      const counts = {};
+      modeMultiData.forEach(v => counts[v] = (counts[v] || 0) + 1);
+      const maxCount = Math.max(...Object.values(counts));
+      const modes = Object.keys(counts).filter(k => counts[k] === maxCount).map(Number).sort((a, b) => a - b);
+
+      const correct = raw.length === modes.length && raw.every((v, i) => v === modes[i]);
+      const feedback = document.getElementById('mode-q3-feedback');
+
+      if (correct) {
+        feedback.textContent = `정답입니다! 최빈값은 ${modes.join(', ')}입니다.`;
+        feedback.className = 'feedback correct';
+        document.querySelectorAll('#mode-multi-chips .median-chip').forEach(chip => {
+          if (modes.includes(Number(chip.dataset.value))) chip.classList.add('highlight');
+        });
+      } else {
+        feedback.textContent = '다시 세어볼까요? 가장 많이 나타나는 값이 두 개일 수도 있어요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 페이지 10: 20개 자료로 세 대푯값 모두 구해보기 ── */
+    const readingData = [3, 4, 3, 2, 5, 3, 6, 3, 2, 4, 3, 5, 2, 3, 4, 8, 3, 2, 3, 4];
+
+    function renderReadingChips() {
+      document.getElementById('reading-data-chips').innerHTML =
+        readingData.map(v => `<span class="median-chip">${v}</span>`).join('');
+    }
+
+    function checkReadingMean() {
+      const correct = readingData.reduce((sum, v) => sum + v, 0) / readingData.length;
+      const val = parseFloat(document.getElementById('reading-mean-answer').value);
+      const feedback = document.getElementById('reading-mean-feedback');
+
+      if (Math.abs(val - correct) < 0.01) {
+        feedback.textContent = `정답입니다! 평균은 ${correct}권입니다.`;
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 계산해볼까요?';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    function checkReadingMedian() {
+      const sorted = [...readingData].sort((a, b) => a - b);
+      const mid = sorted.length / 2;
+      const correct = (sorted[mid - 1] + sorted[mid]) / 2;
+      const val = parseFloat(document.getElementById('reading-median-answer').value);
+      const feedback = document.getElementById('reading-median-feedback');
+
+      if (Math.abs(val - correct) < 0.01) {
+        feedback.textContent = `정답입니다! 중앙값은 ${correct}권입니다.`;
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 확인해볼까요? 먼저 크기순으로 나열해 보세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    function checkReadingMode() {
+      const counts = {};
+      readingData.forEach(v => counts[v] = (counts[v] || 0) + 1);
+      const maxCount = Math.max(...Object.values(counts));
+      const modes = Object.keys(counts).filter(k => counts[k] === maxCount).map(Number);
+      const val = parseFloat(document.getElementById('reading-mode-answer').value);
+      const feedback = document.getElementById('reading-mode-feedback');
+
+      if (modes.includes(val)) {
+        feedback.textContent = `정답입니다! 최빈값은 ${modes.join(', ')}입니다.`;
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '다시 세어볼까요? 가장 많이 나타나는 값을 찾아보세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* 세 대푯값 중 하나를 선택하고 그 이유를 자유롭게 작성 ──
+       정답을 강요하지 않고, 학생이 자신의 생각을 적었다면 그대로 인정한다 */
+    function checkFinalReasoning() {
+      const val = document.getElementById('final-opinion').value.trim();
+      const feedback = document.getElementById('final-feedback');
+
+      if (val.length > 0) {
+        feedback.textContent = '답변이 제출되었습니다! 자신만의 생각을 잘 정리했어요.';
+        feedback.className = 'feedback correct';
+        document.getElementById('next-btn-10').style.display = 'inline-block';
+      } else {
+        feedback.textContent = '생각을 자유롭게 적어주세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 페이지 11: 표를 읽고 생각 정리하기 ── */
+    function checkReasonSummary() {
+      const val = document.getElementById('reason-summary-opinion').value.trim();
+      const feedback = document.getElementById('reason-summary-feedback');
+
+      if (val.length > 0) {
+        feedback.textContent = '답변이 제출되었습니다!';
+        feedback.className = 'feedback correct';
+        document.getElementById('next-btn-11').style.display = 'inline-block';
+      } else {
+        feedback.textContent = '생각을 자유롭게 적어주세요.';
+        feedback.className = 'feedback incorrect';
+      }
+    }
+
+    /* ── 페이지 12: 오늘 배운 내용 정리 & 구글 시트로 제출 ──
+       선생님이 구글 앱스 스크립트 웹 앱을 배포한 뒤, 그 URL을 아래에 붙여넣으면
+       "답변 제출하기" 버튼을 눌렀을 때 학생의 답변이 구글 시트에 자동으로 기록됩니다.
+       (설정 방법은 대화창 안내 참고) */
+    const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycby62Tyz11coi7rk4rElgkTXUSQILLnBSvPk1OI2vwnYn26tMLbXcFSg8P1SI0sZIsDy/exec';
+
+    function collectAllAnswers() {
+      const val = id => {
+        const el = document.getElementById(id);
+        return el ? el.value : '';
+      };
+
+      return {
+        제출시각: new Date().toLocaleString('ko-KR'),
+        학번: document.getElementById('display-id').textContent,
+        이름: document.getElementById('display-name').textContent,
+        '1_하고싶은것': val('q1-answer'),
+        '2_대푯값용어': val('q2-answer'),
+        '4_내용돈': val('q4-my-allowance'),
+        '4_평균에대한생각': val('q4-opinion'),
+        '5_중앙값예제1': val('median-q1'),
+        '5_중앙값예제2': val('median-q2'),
+        '6_짝수중앙값문제': val('median-q3'),
+        '7_신발자료의견': val('shoe-opinion'),
+        '8_최빈값예제1': val('mode-q1'),
+        '8_최빈값예제2': val('mode-q2'),
+        '9_최빈값복수문제': val('mode-q3'),
+        '10_독서평균': val('reading-mean-answer'),
+        '10_독서중앙값': val('reading-median-answer'),
+        '10_독서최빈값': val('reading-mode-answer'),
+        '10_선택이유': val('final-opinion'),
+        '11_정리한생각': val('reason-summary-opinion')
+      };
+    }
+
+    function submitAllAnswers() {
+      const statusEl = document.getElementById('submit-status');
+      const data = collectAllAnswers();
+
+      if (!SUBMIT_URL) {
+        statusEl.textContent = '아직 제출 주소가 설정되지 않았습니다. 선생님께 문의해 주세요.';
+        statusEl.className = 'feedback incorrect';
+        return;
+      }
+
+      statusEl.textContent = '제출 중입니다...';
+      statusEl.className = 'feedback';
+
+      fetch(SUBMIT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      }).then(() => {
+        statusEl.textContent = '제출이 완료되었습니다! 오늘도 수고했어요 🙌';
+        statusEl.className = 'feedback correct';
+        document.getElementById('submit-final-btn').disabled = true;
+      }).catch(() => {
+        statusEl.textContent = '제출에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.';
+        statusEl.className = 'feedback incorrect';
+      });
+    }
+  </script>
+
+</body>
+</html>
